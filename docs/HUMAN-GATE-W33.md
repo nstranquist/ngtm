@@ -6,7 +6,7 @@ thread exists.
 
 Exact composer URL (Show HN):
 
-https://news.ycombinator.com/submitlink?t=Show+HN%3A+ngtm+%E2%80%93+Nicos+GTM+%E2%80%93+a+local+CLI+that+refuses+to+invent+launch+facts&u=https%3A%2F%2Fgithub.com%2Fnstranquist%2Fnicos-tools
+https://news.ycombinator.com/submitlink?t=Show+HN%3A+ngtm+%E2%80%93+Nicos+GTM+%E2%80%93+a+local+CLI+that+refuses+to+invent+launch+facts&u=https%3A%2F%2Fgithub.com%2Fnstranquist%2Fngtm
 
 Filled draft (no FILL slots): `docs/kits/2026-W33-show-hn.md`
 

@@ -6,25 +6,25 @@ A local go-to-market factory. It pairs live data feeds with an LLM and tags
 every claim `grounded` / `inferred` / `speculative`. Unbacked theses are
 rejected. Placement receipts must be real public URLs.
 
-Landing (open this file in a browser): [`docs/human/index.html`](docs/human/index.html)
+**Public product:** https://github.com/nstranquist/ngtm  
+**Landing:** [`docs/human/index.html`](docs/human/index.html) (same page as [`docs/index.html`](docs/index.html))
 
-## Install (public clone-and-run)
-
-The executable lives in the public [nicos-tools](https://github.com/nstranquist/nicos-tools)
-tree. A stranger does **not** need this identity repository or an undocumented
-sibling path.
+## Clone the public product
 
 ```sh
-git clone https://github.com/nstranquist/nicos-tools.git
-cd nicos-tools/nicos-dev
-go build -o "$HOME/.local/bin/ngtm" ./cmd/ngtm
-ngtm version
-ngtm --json feeds
+git clone https://github.com/nstranquist/ngtm.git
+cd ngtm
 ```
 
-`ndev gtm` is the same dispatcher once `ndev` is installed from that clone.
+Open `docs/human/index.html` in a browser. That is the stranger-reachable
+object: name, license, landing, SEO project, and launch kit.
 
-## What it covers
+This repository is the catalog identity for `product.ngtm`. It does not
+re-host the Go module. The `ngtm` binary is built from the operator's
+existing engine checkout (`make install` below), not from a second public
+clone.
+
+## What the CLI covers (when installed)
 
 ```sh
 ngtm social <product> --pitch "…" --channels show-hn,x,reddit
@@ -41,16 +41,11 @@ ngtm feeds doctor
 
 MCP (`ngtm mcp`) is analysis and read-only launch. Ledger writes stay on the CLI.
 
-## This repository
+## Operator make (optional)
 
-Catalog identity for `product.ngtm` (name, license, landing, SEO project).
-It does not re-host the Go module. Operator status notes live in
-[`docs/STATUS.md`](docs/STATUS.md) and are not the public homepage.
-
-## Local make (optional)
-
-If you already have nicos-tools checked out, `make install` builds the sibling
-engine. That is a convenience for this machine, not the public install path.
+`make install` builds the engine from `$NICOS_TOOLS` / `~/dev/nicos-tools` if
+that private checkout already exists on this machine. It is not a public
+clone-and-run path.
 
 ## License
 

@@ -12,14 +12,11 @@ How it works: one dispatcher (`gtmcli.Dispatch`) is shared by `ngtm`, `ndev gtm`
 
 Why I built it: agents will write a “we launched on HN” paragraph that never happened. I wanted the factory I already run (launch loop, SEO research, brand screens) to fail the same way a test fails — not the way a slide deck lies.
 
-It's live in the public nicos-tools tree: https://github.com/nstranquist/nicos-tools
-Install:
+It's live as the public product repo: https://github.com/nstranquist/ngtm
+Clone:
 
 ```
-git clone https://github.com/nstranquist/nicos-tools.git
-cd nicos-tools/nicos-dev
-go build -o "$HOME/.local/bin/ngtm" ./cmd/ngtm
-ngtm version
+git clone https://github.com/nstranquist/ngtm.git
 ```
 
 I'll be in the comments — what would make this useful for you?
@@ -28,6 +25,6 @@ I'll be in the comments — what would make this useful for you?
 *Best slot:* Tue-Thu 08:00-10:00 ET
 
 **Claims**
-- `[grounded]` Engine path: https://github.com/nstranquist/nicos-tools/tree/main/nicos-dev/cmd/ngtm
+- `[grounded]` Public product: https://github.com/nstranquist/ngtm
 - `[grounded]` Shared dispatcher is the documented front door for `ngtm` / `ndev gtm`
 - `[inferred]` Operators who already run agent GTM copy need a fail-closed ledger more than another template pack
