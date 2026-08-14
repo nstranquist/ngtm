@@ -1,0 +1,7 @@
+{
+  "schema_version": 2,
+  "providers": ["fixture-search-console", "fixture-ga4"],
+  "rows": [{"query":"seo automation pipeline","page":"https://example.com/seo-automation-pipeline/","metrics":{"clicks":32,"impressions":500,"ctr":0.064,"position":6.2,"sessions":38,"engaged_sessions":30,"key_events":4,"revenue":200}}],
+  "inspections": [{"url":"https://example.com/seo-automation-pipeline/","verdict":"PASS","coverage_state":"Submitted and indexed","robots_state":"ALLOWED","indexing_state":"INDEXING_ALLOWED","page_fetch_state":"SUCCESSFUL","google_canonical":"https://example.com/seo-automation-pipeline/","user_canonical":"https://example.com/seo-automation-pipeline/"}],
+  "pagespeed": [{"url":"https://example.com/seo-automation-pipeline/","performance":0.92,"accessibility":0.98,"best_practices":0.96,"seo":1.0}]
+}

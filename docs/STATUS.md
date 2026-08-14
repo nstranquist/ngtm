@@ -2,9 +2,9 @@
 
 Public name: **Nicos GTM**. CLI: `ngtm`.
 
-This repository is the public product identity (landing, license, SEO project,
-launch kits). The Go engine lives in a separate private checkout and is not
-required to read this tree.
+This checkout is the product module (Go engine, landing, license, SEO
+project, launch kits). The factory hosts `ndev gtm` against this module.
+The public GitHub remote is still identity/landing until the engine is pushed.
 
 - Landing: [`docs/human/index.html`](human/index.html)
 - License: MIT

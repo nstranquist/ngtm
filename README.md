@@ -9,20 +9,14 @@ rejected. Placement receipts must be real public URLs.
 **Public product:** https://github.com/nstranquist/ngtm  
 **Landing:** [`docs/human/index.html`](docs/human/index.html) (same page as [`docs/index.html`](docs/index.html))
 
-## Clone the public product
+This checkout is the product Go module (`github.com/nstranquist/ngtm`).
+`make test` and `make install` run against this tree.
 
-```sh
-git clone https://github.com/nstranquist/ngtm.git
-cd ngtm
-```
+The public GitHub remote is still the identity/landing tree until this
+module is pushed. Do not treat
+`git clone https://github.com/nstranquist/ngtm.git` as a source install.
 
-Open `docs/human/index.html` in a browser. That is the stranger-reachable
-object: name, license, landing, SEO project, and launch kit.
-
-This repository is the catalog identity for `product.ngtm`. It does not
-re-host the Go module. The `ngtm` binary is built from the operator's
-existing engine checkout (`make install` below), not from a second public
-clone.
+Open `docs/human/index.html` in a browser for the landing page.
 
 ## What the CLI covers (when installed)
 
@@ -41,11 +35,12 @@ ngtm feeds doctor
 
 MCP (`ngtm mcp`) is analysis and read-only launch. Ledger writes stay on the CLI.
 
-## Operator make (optional)
+## Build
 
-`make install` builds the engine from `$NICOS_TOOLS` / `~/dev/nicos-tools` if
-that private checkout already exists on this machine. It is not a public
-clone-and-run path.
+```sh
+make test
+make install
+```
 
 ## License
 

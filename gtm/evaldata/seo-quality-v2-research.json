@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "providers": ["fixture-serp", "fixture-keywords"],
+  "keywords": [
+    {
+      "keyword": "seo automation pipeline",
+      "source": "fixture",
+      "queries": [{"id":"seoq:fixture","keyword":"seo automation pipeline","locale":"us-en-desktop","language_code":"en","location_code":2840,"device":"desktop","provider":"fixture-serp"}],
+      "rankings": [{"query_id":"seoq:fixture","provider":"fixture-serp","position":1,"title":"SEO automation guide","url":"https://competitor.example/seo-automation","domain":"competitor.example","retrieved":"2026-07-14T00:00:00Z"}],
+      "search_volume": 1200,
+      "cpc": 8.4,
+      "difficulty": 42,
+      "intent": "commercial",
+      "trend": 0.25,
+      "serp_features": ["people_also_ask"],
+      "evidence": [{"id":"fixture:serp:1","feed":"fixture-serp","tier":"free","title":"SEO automation guide","url":"https://competitor.example/seo-automation","metric":"serp_rank","value":"1","retrieved":"2026-07-14T00:00:00Z","synthetic":true}]
+    }
+  ]
+}

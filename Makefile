@@ -1,23 +1,20 @@
-# Thin product Makefile. Engine source stays in nicos-tools.
-NICOS_TOOLS ?= $(HOME)/dev/nicos-tools
-NDEV        := $(NICOS_TOOLS)/nicos-dev
-PREFIX      ?= $(HOME)/.local
-BINDIR      ?= $(PREFIX)/bin
+# Product-tree Makefile. Engine lives in this module.
+PREFIX ?= $(HOME)/.local
+BINDIR ?= $(PREFIX)/bin
 
 .PHONY: test install version help
 
 help:
 	@echo "targets: test install version"
 	@echo "public product: https://github.com/nstranquist/ngtm"
-	@echo "operator make install uses existing NICOS_TOOLS checkout (not a public clone)"
 
 test:
-	cd "$(NDEV)" && go test ./internal/gtm ./internal/gtmcli ./cmd/ngtm ./internal/inference/client -count=1
+	go test ./...
 
 install:
-	cd "$(NDEV)" && go build -o bin/ngtm ./cmd/ngtm
-	install -m 755 "$(NDEV)/bin/ngtm" "$(BINDIR)/ngtm"
-	@$(BINDIR)/ngtm version
+	go build -o .bin/ngtm ./cmd/ngtm
+	install -m 755 .bin/ngtm "$(BINDIR)/ngtm"
+	@"$(BINDIR)/ngtm" version
 
 version:
-	ngtm version
+	go run ./cmd/ngtm version

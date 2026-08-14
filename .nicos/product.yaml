@@ -26,6 +26,5 @@ checks:
       - --json
       - feeds
 description: >-
-  Nicos GTM (ngtm). Go-to-market factory. The executable and shared engine
-  ship from nicos-tools (ndev gtm / nicos-dev/cmd/ngtm). This repo is the
-  standalone product git root.
+  Nicos GTM (ngtm). Go-to-market factory. This repo is the product Go module
+  (cmd/ngtm, gtm, gtmcli). nicos-tools hosts ndev gtm against this module.

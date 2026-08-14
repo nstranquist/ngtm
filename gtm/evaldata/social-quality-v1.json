@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "name": "ngtm-social-golden-v1",
+  "minimum_cases": 6,
+  "minimum_channels": 6,
+  "minimum_average": 9.5,
+  "cases": [
+    {
+      "id": "show-hn-technical",
+      "channel": "show-hn",
+      "draft": {
+        "title": "Show HN: docs-puller – local retrieval with Hit@5 100%",
+        "body": "I built docs-puller after measuring how often local search returned the right API documentation. It uses SQLite FTS5 in a pure-Go binary and publishes a reproducible Hit@5 100% fixture. The Ask HN: local docs for coding agents discussion shaped the privacy-first design. What corpus should I benchmark next?"
+      },
+      "mentions": [{"title": "Ask HN: local docs for coding agents", "snippet": "local retrieval fixture Hit@5 100%"}],
+      "minimum_total": 9.5,
+      "minimum_parts": {"contract": 1.5, "grounding": 1.5, "specificity": 1.5, "completeness": 1.5, "cta": 1.5}
+    },
+    {
+      "id": "producthunt-outcome",
+      "channel": "producthunt",
+      "draft": {
+        "title": "Private docs retrieval with Hit@5 100%",
+        "body": "I made docs-puller to keep agent documentation queries local while measuring retrieval quality. It ships one pure-Go binary, SQLite FTS5, and a reproducible eval. The Local-first retrieval for agents thread confirmed that privacy and measurable quality belong together. Which team corpus should we test next?"
+      },
+      "mentions": [{"title": "Local-first retrieval for agents", "snippet": "private docs retrieval Hit@5 100%"}],
+      "minimum_total": 9.5,
+      "minimum_parts": {"contract": 1.5, "grounding": 1.5, "specificity": 1.5, "completeness": 1.5, "cta": 1.5}
+    },
+    {
+      "id": "reddit-learning",
+      "channel": "reddit",
+      "draft": {
+        "title": "What I learned measuring local docs retrieval at Hit@5 100%",
+        "body": "I tested a pure-Go FTS5 docs index against a versioned query fixture instead of judging retrieval by feel. The Measuring RAG retrieval quality discussion led me to publish Hit@1, Hit@5, and MRR together. The code and fixture are public. What failure cases should the next fixture include?"
+      },
+      "mentions": [{"title": "Measuring RAG retrieval quality", "snippet": "Hit@5 100% Hit@1 MRR"}],
+      "minimum_total": 9.5,
+      "minimum_parts": {"contract": 1.5, "grounding": 1.5, "specificity": 1.5, "completeness": 1.5, "cta": 1.5}
+    },
+    {
+      "id": "x-measured-hook",
+      "channel": "x",
+      "draft": {
+        "title": "I measured local agent-doc retrieval at Hit@5 100%",
+        "body": "1/ docs-puller keeps private corpora local. 2/ A versioned FTS5 fixture reports Hit@1, Hit@5, and MRR. The Local RAG without hosted queries thread pushed the privacy boundary. 3/ The binary and eval are public. Which corpus should I benchmark next?"
+      },
+      "mentions": [{"title": "Local RAG without hosted queries", "snippet": "Hit@5 100% Hit@1 MRR"}],
+      "minimum_total": 9.5,
+      "minimum_parts": {"contract": 1.5, "grounding": 1.5, "specificity": 1.5, "completeness": 1.5, "cta": 1.5}
+    },
+    {
+      "id": "linkedin-builder-story",
+      "channel": "linkedin",
+      "draft": {
+        "body": "14,204 local docs exposed a retrieval problem.\n\nI built a pure-Go FTS5 index and a versioned eval instead of trusting demos. The Private retrieval for enterprise agents discussion reinforced the local-first boundary. The current fixture reaches Hit@5 100%. What would make this useful for your agent stack?"
+      },
+      "mentions": [{"title": "Private retrieval for enterprise agents", "snippet": "14,204 local docs Hit@5 100%"}],
+      "minimum_total": 9.5,
+      "minimum_parts": {"contract": 1.5, "grounding": 1.5, "specificity": 1.5, "completeness": 1.5, "cta": 1.5}
+    },
+    {
+      "id": "indiehackers-transparent",
+      "channel": "indiehackers",
+      "draft": {
+        "title": "Shipping a local docs engine after Hit@5 reached 100%",
+        "body": "I built docs-puller as a pure-Go FTS5 binary and made the retrieval fixture public. The Bootstrapping measurable developer tools thread convinced me to publish the score before adding a hosted tier. Revenue is still $0; the next test is whether teams value private synced corpora. Which acquisition experiment would you run first?"
+      },
+      "mentions": [{"title": "Bootstrapping measurable developer tools", "snippet": "Hit@5 100% revenue $0"}],
+      "minimum_total": 9.5,
+      "minimum_parts": {"contract": 1.5, "grounding": 1.5, "specificity": 1.5, "completeness": 1.5, "cta": 1.5}
+    }
+  ]
+}
