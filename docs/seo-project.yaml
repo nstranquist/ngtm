@@ -1,6 +1,6 @@
 schema_version: 2
 project: ngtm
-product: ngtm
+product: Nicos GTM
 content_dir: docs
 seed_keywords:
   - evidence-backed go-to-market cli

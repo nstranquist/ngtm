@@ -1,6 +1,6 @@
 schema_version: 1
 id: product.ngtm
-name: ngtm
+name: Nicos GTM
 surface: products
 kind: product
 status: shipped
@@ -26,5 +26,6 @@ checks:
       - --json
       - feeds
 description: >-
-  Go-to-market factory. The executable and shared engine ship from nicos-tools
-  (ndev gtm / nicos-dev/cmd/ngtm). This repo is the standalone product git root.
+  Nicos GTM (ngtm). Go-to-market factory. The executable and shared engine
+  ship from nicos-tools (ndev gtm / nicos-dev/cmd/ngtm). This repo is the
+  standalone product git root.

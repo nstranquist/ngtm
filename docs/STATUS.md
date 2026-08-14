@@ -1,6 +1,10 @@
-# ngtm status
+# Nicos GTM status
 
 Last updated: 2026-08-14
+
+Public name: **Nicos GTM**. Short name / binary: **ngtm**.
+Do not launch the product as bare "ngtm" — that SERP is a teachers' movement
+and an airport code. Lead with Nicos GTM; `ngtm` is the CLI and the short form.
 
 ## What shipped
 
@@ -58,7 +62,7 @@ Operator next: resolve `[FILL:]` in the kits, submit via `ngtm launch open`, the
 - `ngtm feeds doctor`: searxng live + reachable; grounding advisory is live SERP.
 - Live `brand` / `seo` / `seo research` all cited `[searxng:N]` (not fixtures).
 - Research artifact provenance `live`, providers `[searxng]`, 4 seed keywords ranked, volume/intent/difficulty 0 (no DataForSEO).
-- Short name `ngtm` is a collision; public copy should lead with **Nicos ngtm** / `ngtm.dev`.
+- Public copy leads with **Nicos GTM**; `ngtm` is the short/CLI form (`ngtm.dev` available).
 
 ## Operator leftovers
 

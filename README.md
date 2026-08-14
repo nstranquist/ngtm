@@ -1,4 +1,6 @@
-# ngtm
+# Nicos GTM (`ngtm`)
+
+Public name: **Nicos GTM**. Short name / CLI: **ngtm**.
 
 Standalone git root for the go-to-market factory.
 
