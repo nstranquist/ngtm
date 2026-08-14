@@ -1,7 +1,7 @@
 schema_version: 2
 project: ngtm
 product: ngtm
-content_dir: /Users/nicostran/dev/ngtm/docs
+content_dir: docs
 seed_keywords:
   - evidence-backed go-to-market cli
   - launch ledger cli
@@ -34,7 +34,7 @@ first_party:
   require_inspection: false
   require_pagespeed: false
 publishing:
-  output_dir: /Users/nicostran/.nicos-dev/gtm/seo/ngtm/dist
+  output_dir: dist/seo
   minimum_word_count: 300
   minimum_unique_value_chars: 80
   require_sitemap: false

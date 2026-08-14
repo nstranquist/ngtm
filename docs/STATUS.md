@@ -29,8 +29,8 @@ standalone product git root (`product.ngtm`).
 | `mcp-server.gtm` | mcp-server | shipped |
 | `ndev.gtm` / `nship.gtm` | subcommand | shipped (same dispatcher) |
 | `context.gtm-engine` | context | shipped (shared cell) |
-| `initiative.ngtm-quality` | initiative | active, unstable (<10 operator samples) |
-| `initiative.ngtm-seo-quality` | initiative | active, 0 live-evidence samples |
+| `initiative.ngtm-quality` | initiative | active, 4.06/10 from 48 samples |
+| `initiative.ngtm-seo-quality` | initiative | active, live-evidence coverage 1.0 from 1 sample |
 
 `ndev catalog external doctor --id product.ngtm`: checks green; only issue is
 `distribution_backlog` (no git remote).

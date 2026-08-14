@@ -1,4 +1,5 @@
 .bin/
 /tmp/
+dist/
 *.test
 .DS_Store
