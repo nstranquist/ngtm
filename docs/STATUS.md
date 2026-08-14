@@ -65,4 +65,4 @@ Operator next: resolve `[FILL:]` in the kits, submit via `ngtm launch open`, the
 - Create the GitHub remote for `~/dev/ngtm`.
 - Post the W33 kits on a real distribution channel and record receipts.
 - `export SEARXNG_URL=http://localhost:8888` in the operator shell / direnv.
-- `ndev catalog initiative refresh ngtm-quality` after more operator runs.
+- Initiatives refreshed 2026-08-14: `ngtm-quality` 4.06/10 from 48 samples (was 5.18); `ngtm-seo-quality` live-evidence coverage 1.0 from 1 sample (was 0).
