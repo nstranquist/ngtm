@@ -57,7 +57,10 @@ Kits and brand/SEO artifacts: `~/.nicos-dev/gtm/kits/2026-W33/` and `~/.nicos-de
 SEO project config: `docs/seo-project.yaml` (free tier, SearXNG SERP, no invented site_url).
 `garrid-build` W29 stale plan retired as abandoned.
 
-Operator next: resolve `[FILL:]` in the kits, submit via `ngtm launch open`, then `launch posted` with the live URL. Do not record a placement without a public receipt.
+Filled Show HN drafts (no FILL slots) live under `docs/kits/`. ncli has no
+public remote. Submit via the composer URLs in `docs/HUMAN-GATE-W33.md`, then
+`launch posted` with the live item. Do not record a placement without a public
+receipt.
 
 ## SearXNG / brand / SEO ground (2026-08-14)
 
