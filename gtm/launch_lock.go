@@ -7,8 +7,8 @@ import (
 	"github.com/nstranquist/ngtm/internal/lockfile"
 )
 
-// ErrLaunchLedgerLocked is returned when CopyLocked/WithLock cannot acquire
-// the ledger lock before timeout. Same sentinel the appender uses.
+// ErrLaunchLedgerLocked is returned when WithLock cannot acquire the ledger
+// lock before timeout. Same sentinel the appender uses.
 var ErrLaunchLedgerLocked = lockfile.ErrLocked
 
 // WithLock runs fn while holding the ledger lock the appender uses, so a
