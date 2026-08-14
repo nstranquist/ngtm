@@ -48,7 +48,7 @@ Planned + kitted (not posted — no invented receipts):
 
 | product | public URL | brand screen |
 |---|---|---|
-| `ngtm` | no GitHub remote yet | `ngtm.com` taken; `ngtm.dev` available; SERP is National Great Teachers Movement / airport Wikidata Q1433892 |
+| `ngtm` | https://github.com/nstranquist/ngtm | `ngtm.com` taken; `ngtm.dev` available; SERP is National Great Teachers Movement / airport Wikidata Q1433892 |
 | `ncli` | https://github.com/nstranquist/ncli | `ncli.com` and `ncli.dev` taken |
 | `docs-puller` | https://github.com/nstranquist/docs-puller | `docspuller.com` / `docspuller.dev` available |
 | `jobkit` | https://github.com/nstranquist/jobkit | `jobkit.com` taken |
