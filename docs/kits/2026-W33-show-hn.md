@@ -8,7 +8,7 @@ Public name: **Nicos GTM**. CLI: `ngtm`.
 
 I built Nicos GTM (`ngtm`). It is a Go CLI that turns go-to-market work into an append-only ledger: plan a weekly cohort, generate a channel kit, record a public placement URL, then measure HN/Reddit (or operator conversions) and emit DOUBLE-DOWN / ITERATE / KILL.
 
-How it works: one dispatcher (`gtmcli.Dispatch`) is shared by `ngtm`, `ndev gtm`, and `nship gtm`. Live feeds (HN, Reddit, self-hosted SearXNG, optional cheap SERP keys) become evidence rows. Every claim is tagged `grounded`, `inferred`, or `speculative`. A Show HN draft that lacks a real URL keeps `[FILL:]` rather than minting a news.ycombinator.com item. Posted receipts must be absolute public http(s); localhost and private IP literals fail closed. Kit, posted, signal, verdict, and price-test refuse to write without an active plan, and refuse again after a KILL or retirement until you re-plan.
+How it works: one dispatcher (`gtmcli.Dispatch`) is shared by `ngtm`, `ndev gtm`, and `nship gtm`. Live feeds (HN, Reddit, self-hosted SearXNG, optional cheap SERP keys) become evidence rows. Every claim is tagged `grounded`, `inferred`, or `speculative`. A Show HN draft that lacks a real URL leaves the link slot empty rather than minting a news.ycombinator.com item. Posted receipts must be absolute public http(s); localhost and private IP literals fail closed. Kit, posted, signal, verdict, and price-test refuse to write without an active plan, and refuse again after a KILL or retirement until you re-plan.
 
 Why I built it: agents will write a “we launched on HN” paragraph that never happened. I wanted the factory I already run (launch loop, SEO research, brand screens) to fail the same way a test fails — not the way a slide deck lies.
 
