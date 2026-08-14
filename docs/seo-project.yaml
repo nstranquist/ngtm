@@ -1,0 +1,41 @@
+schema_version: 2
+project: ngtm
+product: ngtm
+content_dir: /Users/nicostran/dev/ngtm/docs
+seed_keywords:
+  - evidence-backed go-to-market cli
+  - launch ledger cli
+  - provenance tagged seo research
+  - weekly product launch cohort
+business_terms:
+  - go-to-market factory
+  - launch loop
+  - evidence-backed claims
+locales:
+  - name: us-en-desktop
+    language_code: en
+    location_code: 2840
+    device: desktop
+requirements:
+  require_serp: true
+  require_volume: false
+  require_intent: false
+  require_difficulty: false
+  require_trend: false
+  require_first_party: false
+  minimum_coverage: 0.4
+providers:
+  tier: free
+  expand: false
+  enable_trends: false
+  max_keywords: 20
+first_party:
+  lookback_days: 28
+  require_inspection: false
+  require_pagespeed: false
+publishing:
+  output_dir: /Users/nicostran/.nicos-dev/gtm/seo/ngtm/dist
+  minimum_word_count: 300
+  minimum_unique_value_chars: 80
+  require_sitemap: false
+  require_structured_data: false
