@@ -1,0 +1,30 @@
+schema_version: 1
+id: product.ngtm
+name: ngtm
+surface: products
+kind: product
+status: shipped
+persona: Operators and agents who need citation-grounded go-to-market work.
+jtbd: Produce channel-native social, launch-loop verdicts, economics, SEO, and landing output without presenting guesses as facts.
+pricing: Local CLI; paid feed/LLM tiers opt-in.
+launch: built
+license: MIT
+tags:
+  - gtm
+  - cli
+  - go
+  - distribution
+  - seo
+checks:
+  - name: version
+    command:
+      - ngtm
+      - version
+  - name: json-feeds
+    command:
+      - ngtm
+      - --json
+      - feeds
+description: >-
+  Go-to-market factory. The executable and shared engine ship from nicos-tools
+  (ndev gtm / nicos-dev/cmd/ngtm). This repo is the standalone product git root.
