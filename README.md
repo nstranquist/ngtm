@@ -2,9 +2,9 @@
 
 Public name: **Nicos GTM**. Short name / CLI: **ngtm**.
 
-A local go-to-market factory. It pairs live data feeds with an LLM and tags
-every claim `grounded` / `inferred` / `speculative`. Unbacked theses are
-rejected. Placement receipts must be real public URLs.
+A local go-to-market toolkit. It pairs live data feeds with an LLM and tags
+every claim `grounded` / `inferred` / `speculative`. Claims without evidence
+are rejected. Placement records must be real public URLs.
 
 **Public product:** https://github.com/nstranquist/ngtm  
 **Landing:** [`docs/human/index.html`](docs/human/index.html) (same page as [`docs/index.html`](docs/index.html))
