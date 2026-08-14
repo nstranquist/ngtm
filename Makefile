@@ -8,7 +8,8 @@ BINDIR      ?= $(PREFIX)/bin
 
 help:
 	@echo "targets: test install version"
-	@echo "engine:  $(NDEV)/cmd/ngtm"
+	@echo "public install: clone https://github.com/nstranquist/nicos-tools && go build -o ~/.local/bin/ngtm ./cmd/ngtm (from nicos-dev/)"
+	@echo "local convenience engine: $(NDEV)/cmd/ngtm"
 
 test:
 	cd "$(NDEV)" && go test ./internal/gtm ./internal/gtmcli ./cmd/ngtm ./internal/inference/client -count=1

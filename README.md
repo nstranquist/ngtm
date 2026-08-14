@@ -2,36 +2,56 @@
 
 Public name: **Nicos GTM**. Short name / CLI: **ngtm**.
 
-Standalone git root for the go-to-market factory.
+A local go-to-market factory. It pairs live data feeds with an LLM and tags
+every claim `grounded` / `inferred` / `speculative`. Unbacked theses are
+rejected. Placement receipts must be real public URLs.
 
-The shipped engine lives in [nicos-tools](https://github.com/nstranquist/nicos-tools)
-(`nicos-dev/internal/gtm`, `nicos-dev/internal/gtmcli`, `nicos-dev/cmd/ngtm`).
-`ndev gtm` and this `ngtm` binary share that dispatcher so the surfaces cannot
-drift. This repository is the product identity a remote can attach to; it does
-not re-host the Go module graph.
+Landing (open this file in a browser): [`docs/human/index.html`](docs/human/index.html)
 
-## Run
+## Install (public clone-and-run)
+
+The executable lives in the public [nicos-tools](https://github.com/nstranquist/nicos-tools)
+tree. A stranger does **not** need this identity repository or an undocumented
+sibling path.
 
 ```sh
+git clone https://github.com/nstranquist/nicos-tools.git
+cd nicos-tools/nicos-dev
+go build -o "$HOME/.local/bin/ngtm" ./cmd/ngtm
 ngtm version
 ngtm --json feeds
-ngtm feeds --json
-ngtm --offline economics <product> --json --acv 30000 --cac 9000
-ndev --json gtm launch cohort
+```
+
+`ndev gtm` is the same dispatcher once `ndev` is installed from that clone.
+
+## What it covers
+
+```sh
+ngtm social <product> --pitch "…" --channels show-hn,x,reddit
+ngtm launch plan <product> --week 2026-W33
+ngtm launch kit <product> --pitch "…" --channels show-hn
+ngtm launch open <product> --channel show-hn --json
+ngtm --json seo research <product> --config docs/seo-project.yaml
+ngtm feeds doctor
 ```
 
 `--json` and `--offline` may lead the verb or follow it.
+`--offline` is rejected on verbs that have no hermetic path.
+`seo measure --offline` requires `--fixture`.
 
-## Build
+MCP (`ngtm mcp`) is analysis and read-only launch. Ledger writes stay on the CLI.
 
-Requires a sibling `~/dev/nicos-tools` checkout (or `NICOS_TOOLS`).
+## This repository
 
-```sh
-make install   # builds nicos-dev/cmd/ngtm → ~/.local/bin/ngtm
-make test      # shipped GTM packages in nicos-tools
-```
+Catalog identity for `product.ngtm` (name, license, landing, SEO project).
+It does not re-host the Go module. Operator status notes live in
+[`docs/STATUS.md`](docs/STATUS.md) and are not the public homepage.
 
-## Remote
+## Local make (optional)
 
-Local git only until a GitHub remote is created by the operator.
-Do not `gh repo create` from this tree unless asked.
+If you already have nicos-tools checked out, `make install` builds the sibling
+engine. That is a convenience for this machine, not the public install path.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

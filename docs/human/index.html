@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nicos GTM (ngtm) — evidence-backed go-to-market factory</title>
+<meta name="description" content="Nicos GTM (short: ngtm) is a local CLI that tags every GTM claim grounded, inferred, or speculative and refuses to invent placement URLs.">
+<style>
+  :root {
+    --bg: #f7f7f4;
+    --ink: #171819;
+    --muted: #5d6268;
+    --line: #d9d9d4;
+    --panel: #ffffff;
+    --accent: #12656f;
+    --good: #1f7a4d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    line-height: 1.55;
+  }
+  header, main { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+  header { padding-top: 48px; border-bottom: 1px solid var(--line); }
+  h1 { margin: 0 0 8px; font-size: 32px; }
+  .lede { color: var(--muted); font-size: 18px; max-width: 640px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .pill {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  h2 { margin: 36px 0 10px; font-size: 18px; }
+  p { margin: 0 0 12px; }
+  code, pre {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 13px;
+  }
+  code {
+    background: #ecefec;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+  }
+  a { color: var(--accent); }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+  footer { color: var(--muted); font-size: 13px; padding-bottom: 48px; }
+</style>
+</head>
+<body>
+<header>
+  <p class="pill" style="display:inline-block;margin:0 0 12px">Nicos GTM · CLI <code>ngtm</code></p>
+  <h1>Nicos GTM</h1>
+  <p class="lede">A local go-to-market factory that pairs live feeds with an LLM and tags every claim <code>grounded</code>, <code>inferred</code>, or <code>speculative</code>. It will not invent a Show HN URL.</p>
+  <div class="pills">
+    <span class="pill">launch ledger</span>
+    <span class="pill">provenance</span>
+    <span class="pill">SEO research</span>
+    <span class="pill">MIT</span>
+  </div>
+</header>
+<main>
+  <h2>Install (public clone-and-run)</h2>
+  <p>The engine ships from the public <a href="https://github.com/nstranquist/nicos-tools">nicos-tools</a> repository. You do not need this identity checkout to build or run the CLI.</p>
+  <pre>git clone https://github.com/nstranquist/nicos-tools.git
+cd nicos-tools/nicos-dev
+go build -o "$HOME/.local/bin/ngtm" ./cmd/ngtm
+ngtm version
+ngtm --json feeds</pre>
+  <p>Same engine via <code>ndev gtm</code> once <code>ndev</code> is on your <code>PATH</code>.</p>
+
+  <h2>What it does</h2>
+  <div class="card">
+    <ul>
+      <li>Channel-native drafts (Show HN, X, Reddit, …) with <code>[FILL:]</code> instead of invented facts</li>
+      <li>Weekly launch cohorts: plan → kit → posted receipt → measured verdict</li>
+      <li>SEO research that stays empty on volume unless a cheap labs key is set</li>
+      <li>Brand / landing / design / economics as the same dispatcher</li>
+    </ul>
+  </div>
+
+  <h2>Name</h2>
+  <p>Public name is <strong>Nicos GTM</strong>. Short name and binary are <code>ngtm</code>. Do not launch it as bare “ngtm” — that token is a teachers’ movement and an airport code.</p>
+
+  <h2>MCP</h2>
+  <p><code>ngtm mcp</code> exposes analysis and read-only launch tools. Ledger writes (<code>plan</code>, <code>posted</code>, <code>signal</code>, <code>import</code>) stay on the CLI.</p>
+
+  <footer>
+    <p>Identity git root for catalog <code>product.ngtm</code>. Engine source: <a href="https://github.com/nstranquist/nicos-tools/tree/main/nicos-dev/cmd/ngtm">nicos-dev/cmd/ngtm</a>.</p>
+  </footer>
+</main>
+</body>
+</html>
