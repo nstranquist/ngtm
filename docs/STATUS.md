@@ -37,7 +37,10 @@ standalone product git root (`product.ngtm`).
 | `initiative.ngtm-seo-quality` | initiative | active, live-evidence coverage 1.0 from 1 sample |
 
 `ndev catalog external doctor --id product.ngtm`: checks green; only issue is
-`distribution_backlog` (no git remote).
+`distribution_backlog` (no git remote on this identity repo). Public install
+is `git clone https://github.com/nstranquist/nicos-tools.git` then
+`go build -o ~/.local/bin/ngtm ./cmd/ngtm` from `nicos-dev/`. Landing:
+`docs/human/index.html`.
 
 ## 2026-W33 cohort
 
