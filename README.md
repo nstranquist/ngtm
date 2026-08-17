@@ -18,6 +18,13 @@ module is pushed. Do not treat
 
 Open `docs/human/index.html` in a browser for the landing page.
 
+## Showcase
+
+![Nicos GTM landing page](screenshots/landing.png)
+
+The landing page is the same file as `docs/human/index.html`. Extra shots
+go in [screenshots/](screenshots/).
+
 ## What the CLI covers (when installed)
 
 ```sh
