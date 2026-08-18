@@ -11,7 +11,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/nstranquist/pageskein/browser"
+	"github.com/nstranquist/snapref/browser"
 )
 
 // TuneOptions configures the self-review search.
