@@ -49,6 +49,20 @@ ngtm feeds doctor
 
 MCP (`ngtm mcp`) is analysis and read-only launch. Ledger writes stay on the CLI.
 
+## Usage
+
+| Command | What it does |
+|---|---|
+| `ngtm social <product>` | Channel drafts with grounded / inferred / speculative grades |
+| `ngtm launch plan <product>` | Week plan |
+| `ngtm launch kit <product>` | Launch kit for named channels |
+| `ngtm launch open <product>` | Open one channel kit |
+| `ngtm seo research <product>` | SEO research from a project config |
+| `ngtm feeds doctor` | Check live feed wiring |
+| `ngtm mcp` | Read-only analysis MCP |
+
+`--json` and `--offline` may lead the verb or follow it. `--offline` is rejected when the verb has no hermetic path.
+
 ## Build
 
 ```sh
