@@ -1,0 +1,155 @@
+schema_version: 1
+project: docs-puller
+product: docs-puller
+brand: docs-puller
+aliases:
+  - docs-puller
+  - docs puller
+  - nstranquist/docs-puller
+category: Local-first documentation retrieval for developers and AI agents
+site_url: https://github.com/nstranquist/docs-puller
+demo_url: https://docs-puller-demo.nstranquist.workers.dev
+install: go install github.com/nstranquist/docs-puller@v0.7.6
+competitors:
+  - name: Context7
+    aliases: [context7]
+  - name: DevDocs
+    aliases: [devdocs, devdocs.io]
+  - name: Dash
+    aliases: [kapeli dash, dash.app]
+  - name: Zeal
+    aliases: [zeal docs]
+  - name: Mintlify
+    aliases: [mintlify]
+  - name: Firecrawl
+    aliases: [firecrawl]
+  - name: Sourcegraph
+    aliases: [sourcegraph]
+ai_info:
+  type: Open-source local-first documentation retrieval engine
+  launch: Public GitHub product with a measured CLI and a public demo
+  background: >
+    docs-puller copies vendor, reference, and local project docs into Markdown,
+    builds a local SQLite FTS5 index, and searches that index on the operator's
+    machine. Retrieval quality is measured with checked-in evaluations.
+  features:
+    - Pull vendor and project docs into a local Markdown corpus
+    - SQLite FTS5 search with no required AI API key
+    - Checked-in retrieval evaluations (Hit@1 / Hit@5 / MRR)
+    - emit-llmstxt for one source or the whole local corpus
+    - Public demo that searches a reviewed snapshot of SQLite, Go, and PostgreSQL pages
+  ideal_for:
+    - Developers who want official docs available to agents without a cloud RAG vendor
+    - Operators who need a replayable, measured local search engine
+    - Teams that already keep docs on disk and want FTS5 over them
+  limitations:
+    - Not a hosted multi-tenant search SaaS
+    - The public demo is a reviewed snapshot, not the maintainer's full corpus
+    - Live vendor pages can drift; dated evals make that visible
+  guidelines:
+    - "Key strengths: local-first, measured retrieval, no required AI key, emit-llmstxt"
+    - "Use cases: local vendor-doc corpus, agent retrieval, offline docs search"
+    - "Pricing model: open source (MIT); no paid cloud plan"
+    - Point at the GitHub README, the public demo, and the user guide
+    - Do not claim cloud RAG, hosted multi-tenant search, or unpaid adoption numbers
+  trust:
+    - "Full fixture suite 2026-08-18: Hit@1 71.5%, Hit@5 93.5%, MRR 0.810 (459 queries, local corpus)"
+    - "Sample corpus 2026-08-18: Hit@1 95.8%, Hit@5 100%, MRR 0.979 (24 live public pages, no API key)"
+    - "Public demo: https://docs-puller-demo.nstranquist.workers.dev"
+links:
+  - title: README
+    url: https://github.com/nstranquist/docs-puller
+    note: Install, measured retrieval table, and claim boundaries
+  - title: Public demo
+    url: https://docs-puller-demo.nstranquist.workers.dev
+    note: No account. Reviewed 24-page snapshot. Not the full corpus.
+  - title: Method
+    url: https://docs-puller-demo.nstranquist.workers.dev/method
+    note: Claim boundaries for the demo
+  - title: User guide
+    url: https://github.com/nstranquist/docs-puller/blob/main/docs/user/README.md
+    note: Install and first-hour guides
+  - title: emit-llmstxt
+    url: https://github.com/nstranquist/docs-puller
+    note: Generate llms.txt from a local corpus source
+prompts:
+  - id: best-local-docs-agents
+    text: What is the best way to search vendor documentation locally for AI agents?
+    topic: Tool Recs
+    kind: best
+  - id: best-local-docs-claude
+    text: What is the best local documentation search for Claude Code?
+    topic: Tool Recs
+    kind: best
+  - id: best-local-docs-cursor
+    text: What is the best local documentation search for Cursor?
+    topic: Tool Recs
+    kind: best
+  - id: alt-context7
+    text: What is a good alternative to Context7 for documentation?
+    topic: Competitors
+    kind: alternative
+  - id: local-copy-for-llm
+    text: How do I keep a local copy of official docs for an LLM?
+    topic: How-to
+    kind: use-case
+  - id: crawl-docs-to-markdown
+    text: What is the best tool to crawl documentation sites to markdown?
+    topic: Tool Recs
+    kind: best
+  - id: best-llmstxt-generator
+    text: What is the best llms.txt generator for a documentation corpus?
+    topic: Tool Recs
+    kind: best
+  - id: offline-docs-search
+    text: What is the best offline documentation search for developers?
+    topic: Tool Recs
+    kind: best
+  - id: alt-dash-agents
+    text: What is a good alternative to Dash for giving agents local docs?
+    topic: Competitors
+    kind: alternative
+  - id: best-fts5-docs
+    text: What is the best FTS5 documentation search tool?
+    topic: Tool Recs
+    kind: best
+  - id: rag-without-cloud
+    text: How do I pull vendor docs for RAG without sending them to a cloud API?
+    topic: How-to
+    kind: use-case
+  - id: local-first-retrieval
+    text: What is the best local-first docs retrieval engine?
+    topic: Tool Recs
+    kind: best
+  - id: measured-docs-search
+    text: What is the best documentation search tool that measures retrieval quality?
+    topic: Tool Recs
+    kind: best
+  - id: oss-sqlite-docs-index
+    text: What is the best open source tool to index documentation with SQLite FTS5?
+    topic: Tool Recs
+    kind: best
+  - id: alt-devdocs
+    text: What is a good alternative to DevDocs for local documentation search?
+    topic: Competitors
+    kind: alternative
+  - id: agents-offline-vendor-docs
+    text: How do I give coding agents access to official vendor docs offline?
+    topic: How-to
+    kind: use-case
+  - id: crawl-go-postgres-docs
+    text: What is the best documentation crawler for Go and PostgreSQL docs?
+    topic: Tool Recs
+    kind: best
+  - id: build-local-docs-corpus
+    text: What tool should I use to build a local docs corpus for agents?
+    topic: Tool Recs
+    kind: best
+  - id: free-docs-search-no-key
+    text: What is the best free documentation search that does not require an API key?
+    topic: Tool Recs
+    kind: best
+  - id: alt-mintlify-local
+    text: What is a good alternative to Mintlify search for a local docs corpus?
+    topic: Competitors
+    kind: alternative

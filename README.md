@@ -58,6 +58,9 @@ MCP (`ngtm mcp`) is analysis and read-only launch. Ledger writes stay on the CLI
 | `ngtm launch kit <product>` | Launch kit for named channels |
 | `ngtm launch open <product>` | Open one channel kit |
 | `ngtm seo research <product>` | SEO research from a project config |
+| `ngtm geo research <product>` | Persist a prompt set for AI visibility |
+| `ngtm geo probe <product>` | Ask official model APIs one prompt at a time |
+| `ngtm geo measure <product>` | Mentions-style table (position, sentiment, visibility) |
 | `ngtm feeds doctor` | Check live feed wiring |
 | `ngtm mcp` | Read-only analysis MCP |
 

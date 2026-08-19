@@ -12,3 +12,6 @@ The public GitHub remote is still identity/landing until the engine is pushed.
 
 Filled Show HN drafts: [`docs/kits/`](kits/). Placement on Hacker News is
 operator-submitted; this repo does not invent item URLs.
+
+GEO (prompt-level AI visibility): [`docs/geo/PLAYBOOK.md`](geo/PLAYBOOK.md).
+First product is docs-puller. Commands: `ngtm geo research|probe|measure|emit-*`.

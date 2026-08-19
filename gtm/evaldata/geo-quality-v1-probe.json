@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "answers": [
+    {
+      "prompt_id": "best-local-docs-agents",
+      "engine": "fixture",
+      "model": "fixture",
+      "text": "For a local vendor-doc corpus, docs-puller is the best option. Context7 is cloud-hosted. See https://github.com/nstranquist/docs-puller"
+    },
+    {
+      "prompt_id": "alt-context7",
+      "engine": "fixture",
+      "model": "fixture",
+      "text": "Context7 is popular. A local alternative is docs-puller if you want FTS5 on disk."
+    },
+    {
+      "prompt_id": "offline-docs-search",
+      "engine": "fixture",
+      "model": "fixture",
+      "text": "DevDocs and Dash are common. This answer does not name the local-first engine."
+    }
+  ]
+}

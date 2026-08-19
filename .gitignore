@@ -3,3 +3,5 @@
 dist/
 *.test
 .DS_Store
+/runs.jsonl
+/telemetry.sqlite

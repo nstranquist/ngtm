@@ -28,14 +28,14 @@ func TestMCP_ToolsList(t *testing.T) {
 	resp, _ := handleRPC(rpcRequest{JSONRPC: "2.0", ID: json.RawMessage(`2`), Method: "tools/list"})
 	m := resp.Result.(map[string]any)
 	tools := m["tools"].([]map[string]any)
-	if len(tools) != 21 {
-		t.Fatalf("expected 21 tools, got %d", len(tools))
+	if len(tools) != 25 {
+		t.Fatalf("expected 25 tools, got %d", len(tools))
 	}
 	names := map[string]bool{}
 	for _, tl := range tools {
 		names[tl["name"].(string)] = true
 	}
-	for _, want := range []string{"gtm_seo", "gtm_seo_research", "gtm_seo_opportunities", "gtm_seo_brief", "gtm_seo_publish", "gtm_seo_measure", "gtm_seo_retro", "gtm_seo_audit", "gtm_seo_eval", "gtm_business", "gtm_brand", "gtm_economics", "gtm_pricing", "gtm_motion", "gtm_social", "gtm_ideate", "gtm_launch", "gtm_compare", "gtm_landing", "gtm_design", "gtm_feeds"} {
+	for _, want := range []string{"gtm_seo", "gtm_seo_research", "gtm_seo_opportunities", "gtm_seo_brief", "gtm_seo_publish", "gtm_seo_measure", "gtm_seo_retro", "gtm_seo_audit", "gtm_seo_eval", "gtm_geo_research", "gtm_geo_probe", "gtm_geo_measure", "gtm_geo_eval", "gtm_business", "gtm_brand", "gtm_economics", "gtm_pricing", "gtm_motion", "gtm_social", "gtm_ideate", "gtm_launch", "gtm_compare", "gtm_landing", "gtm_design", "gtm_feeds"} {
 		if !names[want] {
 			t.Fatalf("missing tool %q in %v", want, names)
 		}

@@ -22,7 +22,7 @@ import (
 )
 
 // Version of the GTM factory surface (bump on schema-affecting changes).
-const Version = "0.5.0"
+const Version = "0.6.0"
 
 // Dispatch runs one gtm subcommand. prog is the program label used in usage
 // text ("ndev gtm" or "ngtm"). Returns a process exit code.
@@ -48,6 +48,8 @@ func Dispatch(prog string, args []string, out, errOut io.Writer) int {
 			return cmdSEO(prog, args[1:], out, errOut)
 		}
 		return cmdVertical(prog, args[0], args[1:], out, errOut)
+	case "geo":
+		return cmdGEO(prog, args[1:], out, errOut)
 	case "business", "brand", "economics", "pricing", "motion", "ideate":
 		return cmdVertical(prog, args[0], args[1:], out, errOut)
 	case "launch":
@@ -103,7 +105,7 @@ func peelLeadingFamilyFlags(args []string) (familyFlags, []string) {
 
 func verbAcceptsJSON(verb string) bool {
 	switch verb {
-	case "social", "seo", "business", "brand", "economics", "pricing", "motion", "ideate",
+	case "social", "seo", "geo", "business", "brand", "economics", "pricing", "motion", "ideate",
 		"launch", "landing", "design", "feeds":
 		return true
 	default:
@@ -115,7 +117,7 @@ func verbAcceptsOffline(verb string, rest []string) bool {
 	switch verb {
 	case "social":
 		return len(rest) == 0 || rest[0] != "eval"
-	case "seo", "business", "brand", "economics", "pricing", "motion", "ideate", "landing", "design":
+	case "seo", "geo", "business", "brand", "economics", "pricing", "motion", "ideate", "landing", "design":
 		return true
 	case "launch":
 		return len(rest) > 0 && rest[0] == "kit"
@@ -146,6 +148,7 @@ func printUsage(prog string, w io.Writer) {
 USAGE
   %[1]s seo <subject> [flags]       Compact SEO & positioning vertical
   %[1]s seo <verb> ...              Evidence lifecycle: research → brief → publish → measure → retro → audit
+  %[1]s geo <verb> ...              Prompt-level AI visibility: research → probe → measure → emit
   %[1]s business <subject> [flags]  Business-plan + SWOT + TAM/SAM/SOM (now incl. JTBD/VPC)
   %[1]s brand <subject> [flags]     Brand & assets (logo brief + landing copy); --kind entity for a legal name
   %[1]s economics <subject> [flags] Unit economics: LTV/CAC/payback/NRR + go/no-go gate + CFO panel

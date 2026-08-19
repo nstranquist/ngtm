@@ -278,6 +278,26 @@ func mcpTools() []map[string]any {
 			"inputSchema": seoLifecycleToolSchema(false),
 		},
 		{
+			"name":        "gtm_geo_research",
+			"description": "Persist a tracked GEO prompt set (buyer prompts, brand aliases, competitors) as a content-addressed artifact.",
+			"inputSchema": geoLifecycleToolSchema(true),
+		},
+		{
+			"name":        "gtm_geo_probe",
+			"description": "Probe official model APIs (openai-chat, gemini, grok) or a fixture for each prompt. Labels engines honestly. Never scrapes chat UIs.",
+			"inputSchema": geoLifecycleToolSchema(true),
+		},
+		{
+			"name":        "gtm_geo_measure",
+			"description": "Join the latest GEO probe into a Mentions-style table: position, sentiment, visibility, competitors.",
+			"inputSchema": geoLifecycleToolSchema(true),
+		},
+		{
+			"name":        "gtm_geo_eval",
+			"description": "Run the embedded deterministic GEO quality-v1 fixture (parse, measure, ai-info, llms.txt, noindex compare).",
+			"inputSchema": geoLifecycleToolSchema(false),
+		},
+		{
 			"name":        "gtm_business",
 			"description": "Run the GTM business-plan + SWOT vertical: gather company/market feeds (Wikidata claims, HN/Reddit mentions; Crunchbase/PDL when keyed), produce a SWOT (Strengths/Weaknesses grounded, Opportunities/Threats inferred), TAM/SAM/SOM sized only as evidence allows, and an investor shark-tank panel. Citation-grounded JSON.",
 			"inputSchema": verticalToolSchema(),
@@ -416,6 +436,14 @@ func callMCPTool(params json.RawMessage) (string, bool) {
 		return runSEOLifecycleMCP("audit", p.Arguments)
 	case "gtm_seo_eval":
 		return runSEOLifecycleMCP("eval", p.Arguments)
+	case "gtm_geo_research":
+		return runGEOLifecycleMCP("research", p.Arguments)
+	case "gtm_geo_probe":
+		return runGEOLifecycleMCP("probe", p.Arguments)
+	case "gtm_geo_measure":
+		return runGEOLifecycleMCP("measure", p.Arguments)
+	case "gtm_geo_eval":
+		return runGEOLifecycleMCP("eval", p.Arguments)
 	case "gtm_business":
 		return runVerticalMCP(ctx, "business", p.Arguments)
 	case "gtm_brand":
@@ -499,6 +527,67 @@ func runSEOLifecycleMCP(verb string, args map[string]any) (string, bool) {
 		}
 		if message == "" {
 			message = fmt.Sprintf("ngtm seo %s exited %d", verb, code)
+		}
+		return message, true
+	}
+	return strings.TrimSpace(stdout.String()), false
+}
+
+func geoLifecycleToolSchema(requireProduct bool) map[string]any {
+	properties := map[string]any{
+		"product":   map[string]any{"type": "string", "description": "Product/project name"},
+		"config":    map[string]any{"type": "string", "description": "Tracked GEO product YAML"},
+		"workspace": map[string]any{"type": "string", "description": "Exact local artifact workspace"},
+		"engines":   map[string]any{"type": "string", "description": "Comma-separated engines: openai-chat, openai-search, gemini, grok, fixture"},
+		"fixture":   map[string]any{"type": "string", "description": "Typed local probe fixture path"},
+		"limit":     map[string]any{"type": "number", "description": "Probe only the first N prompts"},
+		"offline":   map[string]any{"type": "boolean", "description": "Hermetic: fixture only"},
+		"strict":    map[string]any{"type": "boolean", "description": "Return an MCP error when blockers remain"},
+	}
+	schema := map[string]any{"type": "object", "additionalProperties": false, "properties": properties}
+	if requireProduct {
+		schema["required"] = []string{"product"}
+	}
+	return schema
+}
+
+func runGEOLifecycleMCP(verb string, args map[string]any) (string, bool) {
+	cliArgs := []string{verb}
+	if product, _ := args["product"].(string); strings.TrimSpace(product) != "" && verb != "eval" {
+		cliArgs = append(cliArgs, product)
+	}
+	keys := make([]string, 0, len(args))
+	for key := range args {
+		if key != "product" {
+			keys = append(keys, key)
+		}
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		name := "--" + strings.ReplaceAll(key, "_", "-")
+		switch value := args[key].(type) {
+		case string:
+			if strings.TrimSpace(value) != "" {
+				cliArgs = append(cliArgs, name, value)
+			}
+		case bool:
+			if value {
+				cliArgs = append(cliArgs, name)
+			}
+		case float64:
+			cliArgs = append(cliArgs, name, fmt.Sprintf("%v", value))
+		}
+	}
+	cliArgs = append(cliArgs, "--json")
+	var stdout, stderr bytes.Buffer
+	code := cmdGEO("ngtm", cliArgs, &stdout, &stderr)
+	if code != 0 {
+		message := strings.TrimSpace(stderr.String())
+		if message == "" {
+			message = strings.TrimSpace(stdout.String())
+		}
+		if message == "" {
+			message = fmt.Sprintf("ngtm geo %s exited %d", verb, code)
 		}
 		return message, true
 	}
