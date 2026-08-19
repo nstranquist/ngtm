@@ -10,11 +10,18 @@ are rejected. Placement records must be real public URLs.
 **Landing:** [`docs/human/index.html`](docs/human/index.html) (same page as [`docs/index.html`](docs/index.html))
 
 This checkout is the product Go module (`github.com/nstranquist/ngtm`).
-`make test` and `make install` run against this tree.
+Requires Go 1.26 or newer. `make test` and `make install` run against this
+tree. A public clone is a source install:
 
-The public GitHub remote is still the identity/landing tree until this
-module is pushed. Do not treat
-`git clone https://github.com/nstranquist/ngtm.git` as a source install.
+```sh
+git clone https://github.com/nstranquist/ngtm.git
+cd ngtm
+go test ./...
+make install
+```
+
+There is no `replace` pointing at `nicos-tools`. Design preview uses the
+public `github.com/nstranquist/snapref` module.
 
 Open `docs/human/index.html` in a browser for the landing page.
 
