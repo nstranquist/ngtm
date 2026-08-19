@@ -49,6 +49,24 @@ func TestScoreGEOAnswerUnmentioned(t *testing.T) {
 	}
 }
 
+func TestScoreGEOAnswerDoesNotMatchContextInsideContext7(t *testing.T) {
+	cfg := testGEOConfig()
+	cfg.Competitors = append(cfg.Competitors, GEOCompetitor{
+		Name:    "Neuledge Context",
+		Aliases: []string{"neuledge context", "neuledge/context"},
+	})
+	if err := cfg.NormalizeAndValidate(); err != nil {
+		t.Fatal(err)
+	}
+	got := ScoreGEOAnswer(cfg, "Use Context7 to pull library docs into the model context.")
+	if containsGEO(got.Competitors, "Neuledge Context") {
+		t.Fatalf("generic context matched: %+v", got)
+	}
+	if !containsGEO(got.Competitors, "Context7") {
+		t.Fatalf("Context7 missing: %+v", got)
+	}
+}
+
 func TestScoreGEOAnswerIgnoresPartialTokens(t *testing.T) {
 	got := ScoreGEOAnswer(testGEOConfig(), "The dashboard is not Dash.")
 	if !containsGEO(got.Competitors, "Dash") {
