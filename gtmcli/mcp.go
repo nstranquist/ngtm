@@ -539,6 +539,7 @@ func geoLifecycleToolSchema(requireProduct bool) map[string]any {
 		"config":    map[string]any{"type": "string", "description": "Tracked GEO product YAML"},
 		"workspace": map[string]any{"type": "string", "description": "Exact local artifact workspace"},
 		"engines":   map[string]any{"type": "string", "description": "Comma-separated engines: openai-chat, openai-search, gemini, grok, fixture"},
+		"model":     map[string]any{"type": "string", "description": "Override model; requires exactly one engine"},
 		"fixture":   map[string]any{"type": "string", "description": "Typed local probe fixture path"},
 		"limit":     map[string]any{"type": "number", "description": "Probe only the first N prompts"},
 		"offline":   map[string]any{"type": "boolean", "description": "Hermetic: fixture only"},

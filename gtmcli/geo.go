@@ -221,6 +221,12 @@ func cmdGEOProbe(prog string, args []string, out, errOut io.Writer) int {
 		return code
 	}
 	fmt.Fprintf(out, "geo probe  product=%s  rows=%d  passed=%v  artifact=%s\n", cfg.Product, len(report.Rows), report.Passed, ref.ID)
+	for _, finding := range report.Findings {
+		fmt.Fprintf(out, "  %s  %s\n", finding.Code, finding.Message)
+	}
+	if !report.Passed && !common.strict {
+		fmt.Fprintln(errOut, "geo probe: one or more engines failed; re-run with --strict to exit 3")
+	}
 	if code == 3 {
 		fmt.Fprintln(errOut, "strict GEO probe gate failed")
 	}
@@ -364,8 +370,8 @@ func cmdGEOEmitCompare(prog string, args []string, out, errOut io.Writer) int {
 		return 1
 	}
 	files := map[string]string{
-		"index.html":                  gtm.RenderGEOCompareIndex(cfg, time.Now),
-		"best-local-docs-search.html": gtm.RenderGEOCompareBest(cfg, time.Now),
+		"index.html": gtm.RenderGEOCompareIndex(cfg, time.Now),
+		"best.html":  gtm.RenderGEOCompareBest(cfg, time.Now),
 	}
 	for _, comp := range cfg.Competitors {
 		files["alternative-to-"+slugifyForFile(comp.Name)+".html"] = gtm.RenderGEOCompareAlternative(cfg, comp, time.Now)
@@ -392,6 +398,7 @@ func cmdGEOEval(prog string, args []string, out, errOut io.Writer) int {
 	fs.SetOutput(errOut)
 	asJSON := fs.Bool("json", false, "emit JSON")
 	strict := fs.Bool("strict", false, "exit 3 when a check fails")
+	_ = fs.Bool("offline", false, "accepted for family --offline; eval is already hermetic")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}

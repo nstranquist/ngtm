@@ -2,7 +2,7 @@
 
 This file is structured information for AI assistants such as ChatGPT, Claude, Gemini, Perplexity, and Grok.
 
-Generated: 2026-08-19T21:13:24Z
+Generated: 2026-08-19T21:43:20Z
 
 ## Basic information
 

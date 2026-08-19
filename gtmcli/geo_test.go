@@ -98,6 +98,41 @@ func TestMCPCallGEOEval(t *testing.T) {
 	}
 }
 
+func TestGEOMissingEngineKeyFailsClosed(t *testing.T) {
+	t.Setenv("GEMINI_API_KEY", "")
+	root := t.TempDir()
+	config := filepath.Join(root, "geo.yaml")
+	if err := os.WriteFile(config, []byte(`schema_version: 1
+project: geo-key
+product: docs-puller
+brand: docs-puller
+prompts:
+  - id: p1
+    text: best local docs search
+`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var stdout, stderr bytes.Buffer
+	code := Dispatch("ngtm", []string{"geo", "probe", "docs-puller", "--config", config, "--workspace", filepath.Join(root, "ws"), "--engines", "gemini"}, &stdout, &stderr)
+	if code == 0 {
+		t.Fatalf("missing key exited 0 stdout=%s", stdout.String())
+	}
+	if _, err := os.Stat(filepath.Join(root, "ws", "geo-probe", "latest.json")); !os.IsNotExist(err) {
+		t.Fatalf("probe artifact should not exist: %v", err)
+	}
+}
+
+func TestGEOEvalAcceptsFamilyOffline(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Dispatch("ngtm", []string{"--offline", "geo", "eval", "--strict", "--json"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("offline eval code=%d stderr=%s", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), `"passed": true`) {
+		t.Fatalf("output=%s", stdout.String())
+	}
+}
+
 func TestGEOUnknownEngineFailsClosed(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := Dispatch("ngtm", []string{"geo", "probe", "x", "--config", "missing.yaml", "--engines", "chatgpt"}, &stdout, &stderr)

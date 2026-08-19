@@ -160,6 +160,17 @@ func RunGEOProbe(ctx context.Context, opts GEOProbeOptions) (*GEOProbeReport, er
 	if len(engines) == 0 {
 		return nil, errors.New("no GEO engine is configured; set OPENAI_API_KEY, GEMINI_API_KEY, or XAI_API_KEY, or pass --fixture")
 	}
+	if strings.TrimSpace(opts.Model) != "" && len(engines) != 1 {
+		return nil, errors.New("--model requires exactly one --engines value")
+	}
+	if opts.FixturePath == "" {
+		for _, engine := range engines {
+			spec := geoEngineRegistry[engine]
+			if spec.EnvKey != "" && strings.TrimSpace(os.Getenv(spec.EnvKey)) == "" {
+				return nil, fmt.Errorf("%s is not set for engine %s", spec.EnvKey, engine)
+			}
+		}
+	}
 	report.Engines = engines
 
 	answers := map[string]GEORawAnswer{}
@@ -209,24 +220,27 @@ func RunGEOProbe(ctx context.Context, opts GEOProbeOptions) (*GEOProbeReport, er
 				var ok bool
 				raw, ok = answers[prompt.ID+"\x00"+string(engine)]
 				if !ok {
-					raw, ok = answers[prompt.ID+"\x00"+string(GEOEngineFixture)]
-				}
-				if !ok {
 					err = fmt.Errorf("fixture missing prompt %s engine %s", prompt.ID, engine)
+				} else {
+					row.Engine = raw.Engine
+					if raw.Engine != "" {
+						if fixtureSpec, known := geoEngineRegistry[raw.Engine]; known {
+							row.EngineKind = fixtureSpec.Kind
+						} else {
+							row.EngineKind = "fixture"
+						}
+					}
 				}
 			} else {
-				if spec.EnvKey != "" && strings.TrimSpace(os.Getenv(spec.EnvKey)) == "" {
-					err = fmt.Errorf("%s is not set", spec.EnvKey)
-				} else {
-					raw, err = ask(ctx, spec, prompt.Text)
-				}
+				raw, err = ask(ctx, spec, prompt.Text)
 			}
 			if err != nil {
-				row.Error = err.Error()
+				msg := redactGEOSecret(err.Error(), os.Getenv(spec.EnvKey))
+				row.Error = msg
 				report.Passed = false
 				report.Findings = append(report.Findings, GEOFinding{
 					Code: "PROBE_FAILED", Severity: "blocker",
-					Message: fmt.Sprintf("%s/%s: %s", prompt.ID, engine, err.Error()),
+					Message: fmt.Sprintf("%s/%s: %s", prompt.ID, engine, msg),
 				})
 				report.Rows = append(report.Rows, row)
 				continue
@@ -297,14 +311,17 @@ func askOpenAICompatible(ctx context.Context, spec GEOEngineSpec, prompt string)
 	if spec.ID == GEOEngineGrok {
 		base = "https://api.x.ai/v1/chat/completions"
 	}
-	body, err := json.Marshal(map[string]any{
+	reqBody := map[string]any{
 		"model": spec.Model,
 		"messages": []map[string]string{
 			{"role": "system", "content": geoSystemPrompt()},
 			{"role": "user", "content": prompt},
 		},
-		"temperature": 0.2,
-	})
+	}
+	if spec.ID != GEOEngineOpenAISearch {
+		reqBody["temperature"] = 0.2
+	}
+	body, err := json.Marshal(reqBody)
 	if err != nil {
 		return GEORawAnswer{}, err
 	}
@@ -316,15 +333,15 @@ func askOpenAICompatible(ctx context.Context, spec GEOEngineSpec, prompt string)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := geoHTTPClient.Do(req)
 	if err != nil {
-		return GEORawAnswer{}, err
+		return GEORawAnswer{}, fmt.Errorf("%s: %s", spec.ID, redactGEOSecret(err.Error(), key))
 	}
 	defer resp.Body.Close()
-	payload, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	raw, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
 		return GEORawAnswer{}, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return GEORawAnswer{}, fmt.Errorf("%s HTTP %d: %s", spec.ID, resp.StatusCode, clipGEOExcerpt(string(payload), 240))
+		return GEORawAnswer{}, fmt.Errorf("%s HTTP %d: %s", spec.ID, resp.StatusCode, clipGEOExcerpt(redactGEOSecret(string(raw), key), 240))
 	}
 	var parsed struct {
 		Model   string `json:"model"`
@@ -334,7 +351,7 @@ func askOpenAICompatible(ctx context.Context, spec GEOEngineSpec, prompt string)
 			} `json:"message"`
 		} `json:"choices"`
 	}
-	if err := json.Unmarshal(payload, &parsed); err != nil {
+	if err := json.Unmarshal(raw, &parsed); err != nil {
 		return GEORawAnswer{}, fmt.Errorf("decode %s: %w", spec.ID, err)
 	}
 	if len(parsed.Choices) == 0 || strings.TrimSpace(parsed.Choices[0].Message.Content) == "" {
@@ -352,7 +369,7 @@ func askGemini(ctx context.Context, spec GEOEngineSpec, prompt string) (GEORawAn
 	if key == "" {
 		return GEORawAnswer{}, fmt.Errorf("%s is not set", spec.EnvKey)
 	}
-	endpoint := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", spec.Model, key)
+	endpoint := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent", spec.Model)
 	body, err := json.Marshal(map[string]any{
 		"system_instruction": map[string]any{
 			"parts": []map[string]string{{"text": geoSystemPrompt()}},
@@ -370,9 +387,10 @@ func askGemini(ctx context.Context, spec GEOEngineSpec, prompt string) (GEORawAn
 		return GEORawAnswer{}, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-goog-api-key", key)
 	resp, err := geoHTTPClient.Do(req)
 	if err != nil {
-		return GEORawAnswer{}, err
+		return GEORawAnswer{}, fmt.Errorf("gemini: %s", redactGEOSecret(err.Error(), key))
 	}
 	defer resp.Body.Close()
 	payload, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
@@ -380,7 +398,7 @@ func askGemini(ctx context.Context, spec GEOEngineSpec, prompt string) (GEORawAn
 		return GEORawAnswer{}, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return GEORawAnswer{}, fmt.Errorf("gemini HTTP %d: %s", resp.StatusCode, clipGEOExcerpt(string(payload), 240))
+		return GEORawAnswer{}, fmt.Errorf("gemini HTTP %d: %s", resp.StatusCode, clipGEOExcerpt(redactGEOSecret(string(payload), key), 240))
 	}
 	var parsed struct {
 		Candidates []struct {
@@ -404,6 +422,14 @@ func askGemini(ctx context.Context, spec GEOEngineSpec, prompt string) (GEORawAn
 		return GEORawAnswer{}, errors.New("gemini returned an empty answer")
 	}
 	return GEORawAnswer{Engine: spec.ID, Model: spec.Model, Text: text.String()}, nil
+}
+
+func redactGEOSecret(s, secret string) string {
+	secret = strings.TrimSpace(secret)
+	if secret == "" || !strings.Contains(s, secret) {
+		return s
+	}
+	return strings.ReplaceAll(s, secret, "[redacted]")
 }
 
 func clipGEOExcerpt(s string, n int) string {

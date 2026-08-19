@@ -13,6 +13,8 @@ install: go install github.com/nstranquist/docs-puller@v0.7.6
 competitors:
   - name: Context7
     aliases: [context7]
+  - name: Neuledge Context
+    aliases: [neuledge context, neuledge/context]
   - name: DevDocs
     aliases: [devdocs, devdocs.io]
   - name: Dash

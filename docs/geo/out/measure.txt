@@ -1,23 +1,23 @@
 GEO measure  product=docs-puller  prompts=20  mention_rate=0%
 Prompt                                        Pos     Sent        Vis        Runs  Competitors
-What is the best way to search vendor doc…      —        —         0%     0/2     Dash, Zeal, DevDocs
-What is the best local documentation sear…      —        —         0%     0/2     Dash, Zeal
-What is the best local documentation sear…      —        —         0%     0/2     Dash, Zeal
-What is a good alternative to Context7 fo…      —        —         0%     0/2     Context7
-How do I keep a local copy of official do…      —        —         0%     0/2     
-What is the best tool to crawl documentat…      —        —         0%     0/2     
-What is the best llms.txt generator for a…      —        —         0%     0/2     
-What is the best offline documentation se…      —        —         0%     0/2     Dash, Zeal
-What is a good alternative to Dash for gi…      —        —         0%     0/2     Dash, Zeal, DevDocs
-What is the best FTS5 documentation searc…      —        —         0%     0/2     
-How do I pull vendor docs for RAG without…      —        —         0%     0/2     
-What is the best local-first docs retriev…      —        —         0%     0/2     
-What is the best documentation search too…      —        —         0%     0/2     
-What is the best open source tool to inde…      —        —         0%     0/2     
-What is a good alternative to DevDocs for…      —        —         0%     0/2     DevDocs, Dash, Zeal
-How do I give coding agents access to off…      —        —         0%     0/2     Dash, Zeal
-What is the best documentation crawler fo…      —        —         0%     0/2     
-What tool should I use to build a local d…      —        —         0%     0/2     
-What is the best free documentation searc…      —        —         0%     0/2     Dash, Zeal
-What is a good alternative to Mintlify se…      —        —         0%     0/2     Mintlify
-artifact=sha256:07a018cbefba4507ede4e8816cf3958cfe5c78df75512f8107b8e0fcb1ab4e21
+What is the best way to search vendor doc…      —        —         0%         0/2  Dash, Zeal, DevDocs, Context
+What is the best local documentation sear…      —        —         0%         0/2  Dash, Zeal
+What is the best local documentation sear…      —        —         0%         0/2  Dash, Zeal
+What is a good alternative to Context7 fo…      —        —         0%         0/2  Context7
+How do I keep a local copy of official do…      —        —         0%         0/2  Dash, Zeal
+What is the best tool to crawl documentat…      —        —         0%         0/2  
+What is the best llms.txt generator for a…      —        —         0%         0/2  
+What is the best offline documentation se…      —        —         0%         0/2  Dash, Zeal, DevDocs
+What is a good alternative to Dash for gi…      —        —         0%         0/2  Dash, Zeal, DevDocs
+What is the best FTS5 documentation searc…      —        —         0%         0/2  Dash, Zeal
+How do I pull vendor docs for RAG without…      —        —         0%         0/2  
+What is the best local-first docs retriev…      —        —         0%         0/2  
+What is the best documentation search too…      —        —         0%         0/2  
+What is the best open source tool to inde…      —        —         0%         0/2  
+What is a good alternative to DevDocs for…      —        —         0%         0/2  DevDocs, Dash, Zeal
+How do I give coding agents access to off…      —        —         0%         0/2  Dash, Zeal, DevDocs
+What is the best documentation crawler fo…      —        —         0%         0/2  Dash, Zeal
+What tool should I use to build a local d…      —        —         0%         0/2  
+What is the best free documentation searc…      —        —         0%         0/2  Dash, Zeal, DevDocs
+What is a good alternative to Mintlify se…      —        —         0%         0/2  Mintlify
+artifact=sha256:5e6a65641fdecd52afa6edd8be2bd24930161d7da63828b38972abb6493f14e3

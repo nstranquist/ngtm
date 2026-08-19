@@ -13,10 +13,12 @@ type GEOMeasureRow struct {
 	Topic       string   `json:"topic,omitempty"`
 	Kind        string   `json:"kind,omitempty"`
 	Runs        int      `json:"runs"`
+	OK          int      `json:"ok"`
 	Mentioned   int      `json:"mentioned"`
 	Position    float64  `json:"position,omitempty"`
 	Sentiment   float64  `json:"sentiment"`
 	Visibility  float64  `json:"visibility"`
+	Unmeasured  bool     `json:"unmeasured,omitempty"`
 	Competitors []string `json:"competitors,omitempty"`
 	Citations   []string `json:"citations,omitempty"`
 	Engines     []string `json:"engines,omitempty"`
@@ -79,31 +81,40 @@ func BuildGEOMeasure(cfg GEOProductConfig, probe GEOProbeReport, now func() time
 		row.Citations = uniqueStrings(append(row.Citations, raw.Citations...))
 		row.Engines = uniqueStrings(append(row.Engines, string(raw.Engine)))
 	}
-	var mentionedPrompts int
+	var mentionedPrompts, scoredPrompts, unmeasuredPrompts int
 	for _, id := range order {
 		row := *byPrompt[id]
-		if row.Runs > 0 {
-			ok := row.Runs - row.Errors
-			if ok > 0 {
-				row.Visibility = float64(row.Mentioned) / float64(ok)
-			}
+		row.OK = row.Runs - row.Errors
+		if row.OK > 0 {
+			row.Visibility = float64(row.Mentioned) / float64(row.OK)
+			scoredPrompts++
 			if row.Mentioned > 0 {
 				row.Position = row.Position / float64(row.Mentioned)
 				row.Sentiment = row.Sentiment / float64(row.Mentioned)
 				mentionedPrompts++
 			}
+		} else if row.Runs > 0 {
+			row.Unmeasured = true
+			unmeasuredPrompts++
+			report.Findings = append(report.Findings, GEOFinding{
+				Code: "UNMEASURED_PROMPT", Severity: "blocker",
+				Message: fmt.Sprintf("%s: every engine call failed", row.PromptID),
+			})
 		}
 		report.Rows = append(report.Rows, row)
 	}
 	report.PromptCount = len(report.Rows)
-	if report.PromptCount > 0 {
-		report.MentionRate = float64(mentionedPrompts) / float64(report.PromptCount)
+	if scoredPrompts > 0 {
+		report.MentionRate = float64(mentionedPrompts) / float64(scoredPrompts)
 	}
 	if report.PromptCount == 0 {
 		report.Passed = false
 		report.Findings = append(report.Findings, GEOFinding{
 			Code: "NO_PROMPTS", Severity: "blocker", Message: "measure has no prompt rows",
 		})
+	}
+	if unmeasuredPrompts > 0 {
+		report.Passed = false
 	}
 	return report
 }
@@ -118,14 +129,21 @@ func FormatGEOTable(report GEOMeasureReport) string {
 		if row.Mentioned > 0 {
 			pos = fmt.Sprintf("#%.1f", row.Position)
 		}
-		vis := fmt.Sprintf("%.0f%%", row.Visibility*100)
+		vis := "n/a"
+		if !row.Unmeasured && row.OK > 0 {
+			vis = fmt.Sprintf("%.0f%%", row.Visibility*100)
+		}
 		prompt := row.Prompt
 		if len(prompt) > 44 {
 			prompt = prompt[:41] + "…"
 		}
-		fmt.Fprintf(&b, "%-44s %4s %8s %10s %5d/%-4d  %s\n",
+		runs := fmt.Sprintf("%d/%d", row.Mentioned, row.OK)
+		if row.Errors > 0 {
+			runs += fmt.Sprintf(" err=%d", row.Errors)
+		}
+		fmt.Fprintf(&b, "%-44s %4s %8s %10s %11s  %s\n",
 			prompt, pos, formatGEOAvg(row.Sentiment, row.Mentioned > 0), vis,
-			row.Mentioned, row.Runs, strings.Join(row.Competitors, ", "))
+			runs, strings.Join(row.Competitors, ", "))
 	}
 	return b.String()
 }
