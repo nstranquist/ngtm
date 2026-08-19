@@ -14,6 +14,8 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	_ = os.Setenv("NGTM_RUNS_TELEMETRY_PATH", filepath.Join(dir, "runs.jsonl"))
+	_ = os.Setenv("NGTM_TELEMETRY_DB", filepath.Join(dir, "telemetry.sqlite"))
+	_ = os.Setenv("NGTM_LAUNCH_LEDGER", filepath.Join(dir, "launch-ledger.jsonl"))
 	_ = os.Setenv("NGTM_RUN_CONTEXT", "test")
 	code := m.Run()
 	_ = os.RemoveAll(dir)

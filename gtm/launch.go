@@ -11,7 +11,6 @@ import (
 	"math"
 	"net/url"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -361,20 +360,18 @@ func (ev LaunchEvent) Validate() error {
 	}
 }
 
-// LaunchLedger is the append-only JSONL store.
+// LaunchLedger is the append-only launch store. SQLite is the default SoT
+// (~/.nicos-dev/gtm/telemetry.sqlite). A .jsonl path stays JSONL so tests and
+// NGTM_LAUNCH_LEDGER overrides keep working.
 type LaunchLedger struct{ Path string }
 
 // DefaultLaunchLedgerPath resolves the ledger location: $NGTM_LAUNCH_LEDGER
-// wins, else ~/.nicos-dev/gtm/launch-ledger.jsonl (same dir as runs.jsonl).
+// wins, else the shared telemetry SQLite DB.
 func DefaultLaunchLedgerPath() string {
 	if p := strings.TrimSpace(os.Getenv("NGTM_LAUNCH_LEDGER")); p != "" {
 		return p
 	}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "launch-ledger.jsonl"
-	}
-	return filepath.Join(home, ".nicos-dev", "gtm", "launch-ledger.jsonl")
+	return DefaultTelemetryDBPath()
 }
 
 // Append writes one event (creating the directory/file on first use).
@@ -382,6 +379,14 @@ func DefaultLaunchLedgerPath() string {
 // run under the same lock as the durable write so a concurrent append cannot
 // sneak a zombie row in.
 func (l LaunchLedger) Append(ev LaunchEvent) error {
+	if IsSQLitePath(l.Path) {
+		s, err := OpenTelemetryStore(l.Path)
+		if err != nil {
+			return err
+		}
+		defer func() { _ = s.Close() }()
+		return s.AppendLaunch(ev)
+	}
 	if err := ev.Validate(); err != nil {
 		return fmt.Errorf("invalid launch event: %w", err)
 	}
@@ -525,6 +530,14 @@ func (l LaunchLedger) Read() ([]LaunchEvent, error) {
 // line. It is intentionally reserved for `launch audit`; normal reads use Read
 // and fail closed when any issue exists.
 func (l LaunchLedger) ReadWithIssues() (LaunchLedgerRead, error) {
+	if IsSQLitePath(l.Path) {
+		s, err := OpenTelemetryStore(l.Path)
+		if err != nil {
+			return LaunchLedgerRead{}, err
+		}
+		defer func() { _ = s.Close() }()
+		return s.ReadLaunch()
+	}
 	var report LaunchLedgerRead
 	err := lockfile.WithFileLock(l.Path, func() error {
 		var readErr error

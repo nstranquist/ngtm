@@ -106,10 +106,12 @@ func TestSearxngFeed_ParsesResults(t *testing.T) {
 }
 
 func TestSearxngFeed_Unavailable(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("USERPROFILE", t.TempDir())
 	t.Setenv("SEARXNG_URL", "")
 	f := &searxngFeed{now: fixedNow}
 	if f.Available() {
-		t.Error("expected unavailable without SEARXNG_URL")
+		t.Error("expected unavailable without SEARXNG_URL or url file")
 	}
 }
 

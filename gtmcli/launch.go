@@ -29,6 +29,8 @@ func cmdLaunch(prog string, args []string, out, errOut io.Writer) int {
 		return launchPlan(prog, rest, out, errOut)
 	case "kit":
 		return launchKit(prog, rest, out, errOut)
+	case "assets":
+		return launchAssets(prog, rest, out, errOut)
 	case "posted":
 		return launchPosted(prog, rest, out, errOut)
 	case "signal":
@@ -69,6 +71,8 @@ USAGE
   %[1]s launch plan <product> [--week 2026-W24]      Enter a product into a weekly cohort
   %[1]s launch kit <product> [--pitch s] [--channels a,b] [--out f]
                                                      Generate the channel content pack (social vertical) + record it
+  %[1]s launch assets <product> --pack <dir> [--open]
+                                                     Map an ndev browser shot pack onto Product Hunt upload slots
   %[1]s launch posted <product> --channel <key> --url <u>
                                                      Record a placement receipt (any channel key accepted)
   %[1]s launch signal <product> --metric <m> --value <v>

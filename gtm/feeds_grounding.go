@@ -51,9 +51,9 @@ func GroundingAdvisory(searxngSet, searxngReachable bool, cheapSerpLive []string
 			"brand/seo will GROUND with `--tier cheap` (sources: %s) — but the DEFAULT (free) run stays SPECULATIVE. Add --paid/--tier cheap, or run `ndev ask deep web-up` for free default grounding.",
 			strings.Join(cheapSerpLive, ", "))
 	case searxngSet && !searxngReachable:
-		st.Advisory = "SEARXNG_URL is set but the instance is UNREACHABLE — start it with `ndev ask deep web-up` (or check `docker ps`). Until a SERP feed is live, brand/seo stay SPECULATIVE."
+		st.Advisory = "SearXNG is configured (env or ~/.nicos-dev/searxng/url) but UNREACHABLE — start it with `ndev ask deep web-up` (or check `docker ps`). Tear down with `ndev ask deep web-down`. Until a SERP feed is live, brand/seo stay SPECULATIVE."
 	default:
-		st.Advisory = "brand/seo will be SPECULATIVE — no live SERP feed. Fastest free fix: `ndev ask deep web-up` (starts a local SearXNG + writes SEARXNG_URL), then `export SEARXNG_URL=http://localhost:8888`. Or set TAVILY_API_KEY / SERPER_API_KEY (--tier cheap)."
+		st.Advisory = "brand/seo will be SPECULATIVE — no live SERP feed. Fastest free fix: `ndev ask deep web-up` (starts SearXNG and writes ~/.nicos-dev/searxng/url; ngtm reads that file, export is optional). Tear down with `ndev ask deep web-down`. Or set TAVILY_API_KEY / SERPER_API_KEY (--tier cheap)."
 	}
 	return st
 }

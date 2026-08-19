@@ -83,6 +83,7 @@ func verticalToolSchema() map[string]any {
 			"subject":  map[string]any{"type": "string", "description": "Product/company/market to analyze"},
 			"keywords": map[string]any{"type": "string", "description": "Comma-separated seed keywords"},
 			"category": map[string]any{"type": "string", "description": "Disambiguation hint for entity resolution (e.g. \"developer tools\", \"password manager\") — prefers the matching real-world entity over homonyms"},
+			"kind":     map[string]any{"type": "string", "description": "Brand mode: product (default) or entity (legal/company name; no logo/landing; domain is not a vote)"},
 			"tier":     map[string]any{"type": "string", "description": "Feed tier: free | cheap | premium | all | none", "default": "free"},
 			"offline":  map[string]any{"type": "boolean", "description": "Hermetic: no LLM, no network (fixtures only)"},
 			"since":    map[string]any{"type": "string", "description": "Path to a prior watch-state file: diff this run's claim statuses + metrics (SERP rank, volume, mentions) against it, update it, and return a drift report"},
@@ -283,7 +284,7 @@ func mcpTools() []map[string]any {
 		},
 		{
 			"name":        "gtm_brand",
-			"description": "Run the GTM brand & assets vertical: grounded brand context, an inferred naming/positioning concept, a Recraft logo brief (live SVG when RECRAFT_API_KEY is set), and landing copy. Citation-grounded JSON.",
+			"description": "Run the GTM brand vertical. Product mode: logo brief + landing copy. Pass kind=entity (or a subject ending in LLC/Inc/GmbH) for a legal-name collision screen — domain availability is not a naming vote.",
 			"inputSchema": verticalToolSchema(),
 		},
 		{
@@ -345,7 +346,7 @@ func mcpTools() []map[string]any {
 		},
 		{
 			"name":        "gtm_feeds",
-			"description": "List the GTM data feeds and whether each is available on this machine (free feeds are always on; cheap feeds require their API key).",
+			"description": "List the GTM data feeds and whether each is available on this machine (free feeds are always on; cheap feeds require their API key). Launch browse/glance/promote stay on `ngtm feeds browse|glance|promote`.",
 			"inputSchema": map[string]any{
 				"type":                 "object",
 				"additionalProperties": false,
@@ -781,11 +782,12 @@ func runVerticalMCP(ctx context.Context, vertical string, args map[string]any) (
 	}
 	kw, _ := args["keywords"].(string)
 	category, _ := args["category"].(string)
+	kind, _ := args["kind"].(string)
 	pitch, _ := args["pitch"].(string)
 	chans, _ := args["channels"].(string)
 	avoid, _ := args["avoid"].(string)
 	opts := gtm.Options{
-		Subject: subject, Keywords: splitCSV(kw), Category: strings.TrimSpace(category), Tiers: tiers,
+		Subject: subject, Keywords: splitCSV(kw), Category: strings.TrimSpace(category), Kind: strings.TrimSpace(kind), Tiers: tiers,
 		Offline: offline, NoFeeds: noFeeds || offline,
 		Inputs: modelInputsFromArgs(args),
 		Pitch:  strings.TrimSpace(pitch), Channels: splitCSV(chans),

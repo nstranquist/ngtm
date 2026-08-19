@@ -22,7 +22,7 @@ import (
 )
 
 // Version of the GTM factory surface (bump on schema-affecting changes).
-const Version = "0.4.0"
+const Version = "0.5.0"
 
 // Dispatch runs one gtm subcommand. prog is the program label used in usage
 // text ("ndev gtm" or "ngtm"). Returns a process exit code.
@@ -58,6 +58,8 @@ func Dispatch(prog string, args []string, out, errOut io.Writer) int {
 		return cmdDesign(prog, args[1:], out, errOut)
 	case "feeds":
 		return cmdFeeds(args[1:], out, errOut)
+	case "telemetry":
+		return cmdTelemetry(prog, args[1:], out, errOut)
 	case "verticals":
 		return cmdVerticals(args[1:], out)
 	case "mcp":
@@ -145,7 +147,7 @@ USAGE
   %[1]s seo <subject> [flags]       Compact SEO & positioning vertical
   %[1]s seo <verb> ...              Evidence lifecycle: research → brief → publish → measure → retro → audit
   %[1]s business <subject> [flags]  Business-plan + SWOT + TAM/SAM/SOM (now incl. JTBD/VPC)
-  %[1]s brand <subject> [flags]     Brand & assets (logo brief + landing copy)
+  %[1]s brand <subject> [flags]     Brand & assets (logo brief + landing copy); --kind entity for a legal name
   %[1]s economics <subject> [flags] Unit economics: LTV/CAC/payback/NRR + go/no-go gate + CFO panel
   %[1]s pricing <subject> [flags]   Value-based price + good-better-best tiers + Van Westendorp survey
   %[1]s motion <subject> [flags]    GTM motion by ACV + funnel/PQL + beachhead + PMF validation plan
@@ -158,6 +160,14 @@ USAGE
   %[1]s feeds [--json]              List data feeds and availability
   %[1]s feeds doctor [--json] [--probe-paid]
                                     Live-probe feeds + whether brand/seo can ground (+ the fix)
+  %[1]s feeds browse [--json] [--limit N] [--source showhn,producthunt] [--out PATH] [--cache] [--hydrate]
+                                    List recent Show HN and Product Hunt launches (no subject)
+  %[1]s feeds glance [--json]
+                                    Read today's radar cache only (fail open if missing)
+  %[1]s feeds promote <github-url> [--json]
+                                    Dry-run ndev refs cref command for a GitHub repo URL
+  %[1]s telemetry status|query|import|export
+                                    SQLite history. query is the agent path (capped). Do not rg the JSONL.
   %[1]s verticals                   List available analysis verticals
   %[1]s mcp                         Serve the factory as an MCP stdio server
   %[1]s version                     Print version
@@ -167,6 +177,7 @@ COMMON FLAGS
   --query <q>        Research question (defaults to subject)
   --keywords <list>  Comma-separated seed keywords
   --category <c>     Disambiguation hint for entity resolution (e.g. "developer tools") — brand/seo/business
+  --kind product|entity  Brand mode (default: product; LLC/Inc/GmbH in the subject auto-selects entity)
   --tier <t>         free | cheap | premium | all | none   (default: free)
   --paid             Shorthand for --tier cheap (free + cheap)
   --provider <p>     LLM provider for narrative (ollama, openai, gemini, claude-code, ...)
@@ -272,24 +283,30 @@ func logRun(fields map[string]any) {
 	case "0", "false", "off", "no":
 		return
 	}
-	path := strings.TrimSpace(os.Getenv("NGTM_RUNS_TELEMETRY_PATH"))
-	if path == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return
-		}
-		path = filepath.Join(home, ".nicos-dev", "gtm", "runs.jsonl")
-	}
 	context := strings.TrimSpace(os.Getenv("NGTM_RUN_CONTEXT"))
 	if context == "" {
 		context = "operator"
 	}
 	fields["run_context"] = context
-	b, err := json.Marshal(fields)
+	path := strings.TrimSpace(os.Getenv("NGTM_RUNS_TELEMETRY_PATH"))
+	if path != "" && !gtm.IsSQLitePath(path) {
+		b, err := json.Marshal(fields)
+		if err != nil {
+			return
+		}
+		_ = jsonl.AppendLine(path, b, 0o644)
+		return
+	}
+	dbPath := path
+	if dbPath == "" {
+		dbPath = gtm.DefaultTelemetryDBPath()
+	}
+	s, err := gtm.OpenTelemetryStore(dbPath)
 	if err != nil {
 		return
 	}
-	_ = jsonl.AppendLine(path, b, 0o644)
+	defer func() { _ = s.Close() }()
+	_ = s.InsertRun(fields)
 }
 
 func cmdVertical(prog, vertical string, args []string, out, errOut io.Writer) int {
@@ -300,6 +317,7 @@ func cmdVertical(prog, vertical string, args []string, out, errOut io.Writer) in
 		query         = fs.String("query", "", "research question")
 		keywords      = fs.String("keywords", "", "comma-separated seed keywords")
 		category      = fs.String("category", "", "disambiguation hint for entity resolution (e.g. \"developer tools\")")
+		kind          = fs.String("kind", "", "brand mode: product (default) or entity (legal/company name; no logo/landing; domain is not a vote)")
 		tier          = fs.String("tier", "free", "feed tier: free|cheap|premium|all|none")
 		paid          = fs.Bool("paid", false, "shorthand for --tier cheap")
 		provider      = fs.String("provider", "", "LLM provider for narrative")
@@ -457,6 +475,7 @@ func cmdVertical(prog, vertical string, args []string, out, errOut io.Writer) in
 		Query:     strings.TrimSpace(*query),
 		Keywords:  splitCSV(*keywords),
 		Category:  strings.TrimSpace(*category),
+		Kind:      strings.TrimSpace(*kind),
 		Tiers:     tiers,
 		Provider:  strings.TrimSpace(*provider),
 		Model:     strings.TrimSpace(*model),
@@ -690,6 +709,15 @@ func cmdFeeds(args []string, out, errOut io.Writer) int {
 	if len(args) > 0 && args[0] == "doctor" {
 		return cmdFeedsDoctor(args[1:], out, errOut)
 	}
+	if len(args) > 0 && args[0] == "browse" {
+		return cmdFeedsBrowse(args[1:], out, errOut)
+	}
+	if len(args) > 0 && args[0] == "glance" {
+		return cmdFeedsGlance(args[1:], out, errOut)
+	}
+	if len(args) > 0 && args[0] == "promote" {
+		return cmdFeedsPromote(args[1:], out, errOut)
+	}
 	fs := flag.NewFlagSet("feeds", flag.ContinueOnError)
 	fs.SetOutput(errOut)
 	asJSON := fs.Bool("json", false, "emit JSON")
@@ -731,8 +759,230 @@ func cmdFeeds(args []string, out, errOut io.Writer) int {
 		}
 		_, _ = fmt.Fprintf(out, "  %-12s %-7s %-22s %s\n", r.Name, r.Tier, key, status)
 	}
-	_, _ = fmt.Fprintln(out, "\nFree feeds need no key (except self-hosted searxng — set SEARXNG_URL), but configuration is not proof of liveness. Cheap feeds activate when their key is set via `ndev secrets` (tavily reuses your existing TAVILY_API_KEY).")
+	_, _ = fmt.Fprintln(out, "\nFree feeds need no key (except self-hosted searxng — `ndev ask deep web-up` writes ~/.nicos-dev/searxng/url; export is optional). Configuration is not proof of liveness. Cheap feeds activate when their key is set via `ndev secrets` (tavily reuses your existing TAVILY_API_KEY). Tear down SearXNG with `ndev ask deep web-down`.")
 	_, _ = fmt.Fprintln(out, "Run `"+"ngtm feeds doctor"+"` to probe reachability and check whether brand/seo can ground.")
+	_, _ = fmt.Fprintln(out, "Browse launches with `"+"ngtm feeds browse --json --cache"+"`; glance the cache with `"+"ngtm feeds glance"+"`; promote a GitHub URL with `"+"ngtm feeds promote <url>"+"`.")
+	return 0
+}
+
+func cmdFeedsBrowse(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("feeds browse", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	asJSON := fs.Bool("json", false, "emit JSON")
+	limit := fs.Int("limit", 8, "max items per source")
+	sourceCSV := fs.String("source", "showhn,producthunt", "comma-separated browse feeds")
+	outPath := fs.String("out", "", "write the compact radar JSON to this path")
+	writeCache := fs.Bool("cache", false, "also write ~/.nicos-dev/gtm/radar-YYYYMMDD.json")
+	hydrate := fs.Bool("hydrate", false, "fill missing github_repo via GitHub search")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	want := map[string]bool{}
+	for _, name := range strings.Split(*sourceCSV, ",") {
+		name = strings.TrimSpace(strings.ToLower(name))
+		if name == "" {
+			continue
+		}
+		if name != "showhn" && name != "producthunt" {
+			_, _ = fmt.Fprintf(errOut, "gtm feeds browse: unknown source %q (use showhn,producthunt)\n", name)
+			return 2
+		}
+		want[name] = true
+	}
+	if len(want) == 0 {
+		_, _ = fmt.Fprintln(errOut, "gtm feeds browse: at least one --source is required")
+		return 2
+	}
+	eng, err := gtm.NewEngine(gtm.Options{Subject: "_", Offline: true}, time.Now)
+	if err != nil {
+		_, _ = fmt.Fprintln(errOut, "gtm:", err)
+		return 1
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	type item struct {
+		Feed       string            `json:"feed"`
+		Title      string            `json:"title"`
+		URL        string            `json:"url"`
+		Snippet    string            `json:"snippet"`
+		Metric     string            `json:"metric,omitempty"`
+		Value      string            `json:"value,omitempty"`
+		GitHubRepo string            `json:"github_repo,omitempty"`
+		Extra      map[string]string `json:"extra,omitempty"`
+	}
+	var items []item
+	var evidence []gtm.Evidence
+	var warnings []string
+	for _, f := range eng.Registry().Feeds() {
+		if !want[f.Name()] {
+			continue
+		}
+		ev, qerr := f.Query(ctx, gtm.FeedQuery{Limit: *limit, Browse: true})
+		if qerr != nil {
+			warnings = append(warnings, f.Name()+": "+qerr.Error())
+			continue
+		}
+		evidence = append(evidence, ev...)
+	}
+	if *hydrate {
+		n, hw := (gtm.GitHubHydrator{}).HydrateEvidence(ctx, evidence)
+		if n == 0 && len(hw) > 0 {
+			warnings = append(warnings, hw...)
+		} else if n > 0 {
+			warnings = append(warnings, fmt.Sprintf("hydrated %d github repos", n))
+			warnings = append(warnings, hw...)
+		}
+	}
+	for _, e := range evidence {
+		it := item{Feed: e.Feed, Title: e.Title, URL: e.URL, Snippet: e.Snippet, Metric: e.Metric, Value: e.Value, Extra: e.Extra}
+		if e.Extra != nil {
+			it.GitHubRepo = e.Extra["github_repo"]
+		}
+		items = append(items, it)
+	}
+	now := time.Now()
+	radarItems := gtm.EvidenceToRadarItems(evidence)
+	if *outPath != "" {
+		if err := gtm.WriteRadarCache(*outPath, radarItems, now); err != nil {
+			_, _ = fmt.Fprintf(errOut, "gtm feeds browse: write --out: %v\n", err)
+			return 1
+		}
+	}
+	if *writeCache {
+		cachePath, err := gtm.DefaultRadarCachePath(now)
+		if err != nil {
+			_, _ = fmt.Fprintf(errOut, "gtm feeds browse: cache path: %v\n", err)
+			return 1
+		}
+		if err := gtm.WriteRadarCache(cachePath, radarItems, now); err != nil {
+			_, _ = fmt.Fprintf(errOut, "gtm feeds browse: write --cache: %v\n", err)
+			return 1
+		}
+	}
+	if *asJSON {
+		b, _ := json.MarshalIndent(map[string]any{"items": items, "warnings": warnings}, "", "  ")
+		_, _ = out.Write(b)
+		_, _ = fmt.Fprintln(out)
+		if len(items) == 0 && len(warnings) > 0 {
+			return 1
+		}
+		return 0
+	}
+	if len(items) == 0 {
+		_, _ = fmt.Fprintln(out, "No launch items.")
+		for _, w := range warnings {
+			_, _ = fmt.Fprintln(errOut, "warning:", w)
+		}
+		if len(warnings) > 0 {
+			return 1
+		}
+		return 0
+	}
+	for _, it := range items {
+		_, _ = fmt.Fprintf(out, "%-12s %s\n", it.Feed, it.Title)
+		if it.Snippet != "" {
+			_, _ = fmt.Fprintf(out, "             %s\n", it.Snippet)
+		}
+		if it.URL != "" {
+			_, _ = fmt.Fprintf(out, "             %s\n", it.URL)
+		}
+		if it.GitHubRepo != "" {
+			_, _ = fmt.Fprintf(out, "             github %s\n", it.GitHubRepo)
+		} else if it.Extra != nil && it.Extra["published"] != "" {
+			_, _ = fmt.Fprintf(out, "             published %s\n", it.Extra["published"])
+		}
+	}
+	for _, w := range warnings {
+		_, _ = fmt.Fprintln(errOut, "warning:", w)
+	}
+	return 0
+}
+
+func cmdFeedsGlance(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("feeds glance", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	asJSON := fs.Bool("json", false, "emit JSON")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	now := time.Now()
+	path, err := gtm.DefaultRadarCachePath(now)
+	if err != nil {
+		_, _ = fmt.Fprintf(errOut, "gtm feeds glance: %v\n", err)
+		return 1
+	}
+	cache, err := gtm.ReadRadarCache(path, now)
+	if err != nil {
+		_, _ = fmt.Fprintf(errOut, "gtm feeds glance: %v\n", err)
+		return 1
+	}
+	items := gtm.GlanceRadarItems(cache, 0)
+	if *asJSON {
+		payload := map[string]any{
+			"schema":  "nicos.gtm.radar.v1",
+			"day":     gtm.RadarDayKey(now),
+			"missing": cache.Missing,
+			"items":   items,
+		}
+		b, _ := json.MarshalIndent(payload, "", "  ")
+		_, _ = out.Write(b)
+		_, _ = fmt.Fprintln(out)
+		return 0
+	}
+	if cache.Missing {
+		_, _ = fmt.Fprintln(out, "No same-day radar cache. Run `ngtm feeds browse --cache` first.")
+		return 0
+	}
+	if len(items) == 0 {
+		_, _ = fmt.Fprintln(out, "Radar cache is empty.")
+		return 0
+	}
+	for _, it := range items {
+		_, _ = fmt.Fprintf(out, "%-12s %s\n", it.Feed, it.Title)
+		if it.GitHubRepo != "" {
+			_, _ = fmt.Fprintf(out, "             github %s\n", it.GitHubRepo)
+		}
+	}
+	return 0
+}
+
+func cmdFeedsPromote(args []string, out, errOut io.Writer) int {
+	asJSON := false
+	var positional []string
+	for _, arg := range args {
+		switch arg {
+		case "--json":
+			asJSON = true
+		case "-h", "--help":
+			_, _ = fmt.Fprintln(out, "gtm feeds promote <github-url> [--json]")
+			return 0
+		default:
+			if strings.HasPrefix(arg, "-") {
+				_, _ = fmt.Fprintf(errOut, "gtm feeds promote: unknown flag %q\n", arg)
+				return 2
+			}
+			positional = append(positional, arg)
+		}
+	}
+	if len(positional) != 1 {
+		_, _ = fmt.Fprintln(errOut, "gtm feeds promote: expected <github-url>")
+		return 2
+	}
+	plan, err := gtm.PromoteGitHubURL(positional[0])
+	if err != nil {
+		_, _ = fmt.Fprintf(errOut, "gtm feeds promote: %v\n", err)
+		return 2
+	}
+	if asJSON {
+		b, _ := json.MarshalIndent(plan, "", "  ")
+		_, _ = out.Write(b)
+		_, _ = fmt.Fprintln(out)
+		return 0
+	}
+	_, _ = fmt.Fprintf(out, "dry-run promotion for %s\n", plan.Repo)
+	for _, cmd := range plan.Commands {
+		_, _ = fmt.Fprintln(out, cmd)
+	}
 	return 0
 }
 
@@ -778,6 +1028,9 @@ func probeFeedDoctorRows(ctx context.Context, feeds []gtm.Feed, probePaid bool, 
 				subject = "https://example.com"
 			}
 			query := gtm.FeedQuery{Subject: subject, Limit: 1, Category: "technology company"}
+			if f.Name() == "showhn" || f.Name() == "producthunt" {
+				query = gtm.FeedQuery{Browse: true, Limit: 1}
+			}
 			if f.Name() == "searxng" {
 				// Probe the JSON contract through one deterministic, fast engine;
 				// a full metasearch can exceed the doctor's global timeout even

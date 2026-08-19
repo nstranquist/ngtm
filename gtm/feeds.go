@@ -25,6 +25,9 @@ type FeedQuery struct {
 	// "password manager"). Entity-resolving feeds (Wikidata) use it to prefer
 	// the matching real-world entity over homonyms.
 	Category string
+	// Browse selects launch-stream Query on showhn/producthunt. Mention
+	// gather leaves this false so a named subject never attaches launch items.
+	Browse bool
 }
 
 // Feed is one live data source. Implementations must be safe for concurrent
@@ -72,6 +75,8 @@ func NewFeedRegistry(now func() time.Time) *FeedRegistry {
 	r.Register(&wikidataFeed{now: now})
 	r.Register(&wikidataClaimsFeed{now: now})
 	r.Register(&hackerNewsFeed{now: now})
+	r.Register(&showHNFeed{now: now})
+	r.Register(&productHuntFeed{now: now})
 	r.Register(&redditFeed{now: now})
 	r.Register(&searxngFeed{now: now}) // self-hosted SERP (SEARXNG_URL); free, owned
 	// Cheap pay-per-call tier (key-gated; opt-in).
@@ -153,7 +158,7 @@ func (r *FeedRegistry) Gather(ctx context.Context, q FeedQuery, tiers map[FeedTi
 	}
 	if !hasReal {
 		evidence = append(evidence, fixtureEvidence(q, r.now())...)
-		warnings = append(warnings, "no live evidence — using synthetic fixtures; all claims are speculative. Enable a SERP feed: self-host SearXNG (set SEARXNG_URL, free) or set TAVILY_API_KEY / SERPER_API_KEY / BRAVE_API_KEY (--tier cheap).")
+		warnings = append(warnings, "no live evidence — using synthetic fixtures; all claims are speculative. Enable a SERP feed: `ndev ask deep web-up` (ngtm reads ~/.nicos-dev/searxng/url) or set TAVILY_API_KEY / SERPER_API_KEY / BRAVE_API_KEY (--tier cheap).")
 	}
 	return evidence, warnings
 }

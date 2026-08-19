@@ -135,7 +135,7 @@ func brandCollisionFromEvidence(ev []Evidence, subject string) string {
 // section. Always returns a section (even all-unknown) so the screen is visible.
 func brandScreenSection(label string, results []domainResult, collision string) Section {
 	var b strings.Builder
-	b.WriteString("Best-effort availability screen for the brand name (NOT legal trademark clearance — still verify USPTO/TESS + a likeness check before registering):\n\n")
+	b.WriteString("Best-effort availability screen (NOT legal trademark clearance — still verify USPTO/TESS + a likeness check). A taken .com is not a naming vote; entities do not need a matching domain:\n\n")
 	rows := make([][]string, 0, len(results))
 	for _, r := range results {
 		rows = append(rows, []string{r.Domain, domainStatusLabel(r.Status), r.Method})
@@ -161,11 +161,16 @@ func brandScreenSection(label string, results []domainResult, collision string) 
 }
 
 // brandScreenWarnings surfaces the actionable findings as report warnings.
-func brandScreenWarnings(label string, results []domainResult, collision string) []string {
+// Domain status is recorded; a taken .com is not a naming kill.
+func brandScreenWarnings(label string, results []domainResult, collision string, kind string) []string {
 	var w []string
 	for _, r := range results {
 		if r.Status == domainRegistered {
-			w = append(w, fmt.Sprintf("brand: %s is already REGISTERED — the brand's primary domain is taken; pick a name whose .com/.dev is free or plan a modern-TLD/alt-domain.", r.Domain))
+			if kind == BrandKindEntity {
+				w = append(w, fmt.Sprintf("brand: %s is registered — informational only. A legal entity does not need a matching domain.", r.Domain))
+			} else {
+				w = append(w, fmt.Sprintf("brand: %s is already registered. A company site is optional; this is not a panel kill.", r.Domain))
+			}
 		}
 	}
 	if collision != "" {

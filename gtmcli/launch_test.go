@@ -104,6 +104,12 @@ func TestLaunchKit_WritesNormLintedPack(t *testing.T) {
 	}
 }
 
+func TestLaunchAssetsRequiresPack(t *testing.T) {
+	if code, _, e := runLaunchCLI(t, "launch", "assets", "demo"); code != 2 || !strings.Contains(e, "--pack") {
+		t.Fatalf("assets without --pack: code=%d err=%s", code, e)
+	}
+}
+
 func TestLaunchGuards(t *testing.T) {
 	ledger := filepath.Join(t.TempDir(), "ledger.jsonl")
 	if code, _, _ := runLaunchCLI(t, "launch", "bogus"); code != 2 {

@@ -43,6 +43,7 @@ func (e *Engine) runBrand(ctx context.Context, opts Options) (*Report, error) {
 		conf = ConfSpeculative
 	}
 	category := factValue(facts, "industry")
+	kind := ResolveBrandKind(opts.Kind, opts.Subject)
 
 	var sections []Section
 
@@ -50,37 +51,51 @@ func (e *Engine) runBrand(ctx context.Context, opts Options) (*Report, error) {
 	sections = append(sections, contextOrEmpty("Brand Context", facts,
 		"No grounded brand context yet. Identity direction below is speculative until a category/positioning is verified."))
 
-	// 2. Naming & Positioning — inferred concept.
 	concept := proposeBrandConcept(opts.Subject, category)
-	sections = append(sections, Section{
-		Title:  "Naming & Positioning (inferred)",
-		Body:   concept,
-		Claims: []Claim{{Text: concept, Confidence: conf, Citations: citeIDs(facts, 3)}},
-	})
+	if kind == BrandKindEntity {
+		concept = fmt.Sprintf("Treat %s as a legal/company name, not a product brand: collision and evidence matter; a matching .com is optional and is not a naming vote.", opts.Subject)
+		sections = append(sections, Section{
+			Title:  "Legal name (not a product brand)",
+			Body:   concept,
+			Claims: []Claim{{Text: concept, Confidence: conf, Citations: citeIDs(facts, 3)}},
+		})
+	} else {
+		// 2. Naming & Positioning — inferred concept.
+		sections = append(sections, Section{
+			Title:  "Naming & Positioning (inferred)",
+			Body:   concept,
+			Claims: []Claim{{Text: concept, Confidence: conf, Citations: citeIDs(facts, 3)}},
+		})
 
-	// 3. Logo Direction — Recraft brief (+ live SVG when keyed and not offline).
-	sections = append(sections, e.logoSection(ctx, opts, category, conf, &warnings))
+		// 3. Logo Direction — Recraft brief (+ live SVG when keyed and not offline).
+		sections = append(sections, e.logoSection(ctx, opts, category, conf, &warnings))
 
-	// 4. Landing Copy — LLM prose constrained to grounded claims.
-	copyBody, err := e.landingCopy(ctx, opts.Subject, concept, facts)
-	if err != nil {
-		warnings = append(warnings, "landing copy generation failed: "+err.Error())
-		copyBody = concept
+		// 4. Landing Copy — LLM prose constrained to grounded claims.
+		copyBody, err := e.landingCopy(ctx, opts.Subject, concept, facts)
+		if err != nil {
+			warnings = append(warnings, "landing copy generation failed: "+err.Error())
+			copyBody = concept
+		}
+		sections = append(sections, Section{
+			Title:  "Landing Copy (inferred)",
+			Body:   copyBody,
+			Claims: []Claim{{Text: "Landing value proposition for " + opts.Subject, Confidence: conf, Citations: citeIDs(facts, 3)}},
+		})
 	}
-	sections = append(sections, Section{
-		Title:  "Landing Copy (inferred)",
-		Body:   copyBody,
-		Claims: []Claim{{Text: "Landing value proposition for " + opts.Subject, Confidence: conf, Citations: citeIDs(facts, 3)}},
-	})
 
-	// 5. Brand Availability & IP — concrete (best-effort) domain/collision screen,
-	//    upgrading the blanket ipWarnings advisory. Network-bound, so gated on the
-	//    same NoFeeds switch as the feeds above (skipped when --offline).
+	// 5. Availability & IP — domain is advisory only (not a panel vote).
+	//    Network-bound, so gated on the same NoFeeds switch as the feeds above.
+	var collision string
 	if !opts.NoFeeds {
 		results := screenBrandDomains(ctx, opts.Subject, defaultBrandLookups())
-		collision := brandCollisionFromEvidence(ev, opts.Subject)
+		collision = brandCollisionFromEvidence(ev, opts.Subject)
 		sections = append(sections, brandScreenSection(opts.Subject, results, collision))
-		warnings = append(warnings, brandScreenWarnings(opts.Subject, results, collision)...)
+		warnings = append(warnings, brandScreenWarnings(opts.Subject, results, collision, kind)...)
+	}
+
+	panel := RunBrandPanel(opts.Subject, concept, ev)
+	if kind == BrandKindEntity {
+		panel = RunEntityNamePanel(opts.Subject, ev, collision)
 	}
 
 	report := &Report{
@@ -93,7 +108,7 @@ func (e *Engine) runBrand(ctx context.Context, opts Options) (*Report, error) {
 		Tiers:     tierList(tiers),
 		Evidence:  ev,
 		Sections:  sections,
-		Panel:     RunBrandPanel(opts.Subject, concept, ev),
+		Panel:     panel,
 		Warnings:  warnings,
 	}
 	if v := report.Validate(); len(v) > 0 {

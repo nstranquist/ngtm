@@ -80,6 +80,89 @@ func TestFeedDoctorRateLimitedSearXNGDoesNotClaimLiveGrounding(t *testing.T) {
 	}
 }
 
+func TestDispatch_FeedsPromoteGitHubURL(t *testing.T) {
+	var out, errOut bytes.Buffer
+	code := Dispatch("ngtm", []string{"feeds", "promote", "https://github.com/acme/radarbox", "--json"}, &out, &errOut)
+	if code != 0 {
+		t.Fatalf("promote rc=%d err=%s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), `"repo": "acme/radarbox"`) || !strings.Contains(out.String(), "ndev refs cref") {
+		t.Fatalf("promote out=%s", out.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	code = Dispatch("ngtm", []string{"feeds", "promote", "https://www.producthunt.com/products/whisperstream", "--json"}, &out, &errOut)
+	if code != 2 || !strings.Contains(errOut.String(), "not a github.com") {
+		t.Fatalf("non-github promote rc=%d err=%s", code, errOut.String())
+	}
+}
+
+func TestDispatch_FeedsBrowseUnknownSource(t *testing.T) {
+	var out, errOut bytes.Buffer
+	code := Dispatch("ngtm", []string{"feeds", "browse", "--source", "lobsters"}, &out, &errOut)
+	if code != 2 || !strings.Contains(errOut.String(), "unknown source") {
+		t.Fatalf("rc=%d err=%s", code, errOut.String())
+	}
+}
+
+func TestDispatch_FeedsGlanceMissingFailOpen(t *testing.T) {
+	t.Setenv("NGTM_RADAR_CACHE", filepath.Join(t.TempDir(), "missing.json"))
+	var out, errOut bytes.Buffer
+	code := Dispatch("ngtm", []string{"feeds", "glance", "--json"}, &out, &errOut)
+	if code != 0 {
+		t.Fatalf("glance rc=%d err=%s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), `"missing": true`) || !strings.Contains(out.String(), `"schema": "nicos.gtm.radar.v1"`) {
+		t.Fatalf("glance out=%s", out.String())
+	}
+}
+
+func TestDispatch_FeedsGlanceReadsCache(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "radar.json")
+	now := time.Now()
+	if err := gtm.WriteRadarCache(path, []gtm.RadarItem{
+		{Feed: "showhn", Title: "Show HN: Cachebox", GitHubRepo: "acme/cachebox"},
+		{Feed: "producthunt", Title: "Second"},
+	}, now); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("NGTM_RADAR_CACHE", path)
+	var out, errOut bytes.Buffer
+	code := Dispatch("ngtm", []string{"--json", "feeds", "glance"}, &out, &errOut)
+	if code != 0 {
+		t.Fatalf("glance rc=%d err=%s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "Show HN: Cachebox") || strings.Contains(out.String(), `"missing": true`) {
+		t.Fatalf("glance out=%s", out.String())
+	}
+}
+
+func TestFeedDoctorProbesBrowseFeedsWithoutSubject(t *testing.T) {
+	var got gtm.FeedQuery
+	feeds := []gtm.Feed{doctorTestFeed{name: "showhn", tier: gtm.TierFree, available: true}}
+	rows := probeFeedDoctorRows(context.Background(), feeds, false, func(_ context.Context, _ gtm.Feed, q gtm.FeedQuery) error {
+		got = q
+		return nil
+	})
+	if !got.Browse || got.Subject != "" {
+		t.Fatalf("doctor browse query = %+v", got)
+	}
+	if len(rows) != 1 || rows[0].ProbeStatus != "live" {
+		t.Fatalf("rows = %+v", rows)
+	}
+}
+
+func TestDispatch_FeedsListIncludesBrowseFeeds(t *testing.T) {
+	var out, errOut bytes.Buffer
+	code := Dispatch("ngtm", []string{"--json", "feeds"}, &out, &errOut)
+	if code != 0 {
+		t.Fatalf("feeds rc=%d err=%s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), `"name": "showhn"`) || !strings.Contains(out.String(), `"name": "producthunt"`) {
+		t.Fatalf("feeds list missing browse feeds: %s", out.String())
+	}
+}
+
 func TestDispatch_LeadingJSONFeeds(t *testing.T) {
 	var out, errOut bytes.Buffer
 	code := Dispatch("ngtm", []string{"--json", "feeds"}, &out, &errOut)

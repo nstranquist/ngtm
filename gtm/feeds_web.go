@@ -80,6 +80,33 @@ func doJSON(ctx context.Context, method, rawURL string, headers map[string]strin
 	return lastErr
 }
 
+// doGET fetches a URL with the shared feed client and returns the body.
+func doGET(ctx context.Context, rawURL string, headers map[string]string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	resp, err := feedHTTP.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+	data, err := io.ReadAll(io.LimitReader(resp.Body, (4<<20)+1))
+	if err != nil {
+		return nil, fmt.Errorf("read GET response: %w", err)
+	}
+	if len(data) > 4<<20 {
+		return nil, fmt.Errorf("GET response exceeds 4 MiB limit")
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("GET %d: %s", resp.StatusCode, snippet(data, 200))
+	}
+	return data, nil
+}
+
 func snippet(b []byte, n int) string {
 	s := strings.TrimSpace(string(b))
 	if len(s) > n {
@@ -319,12 +346,12 @@ func (searxngFeed) Tier() FeedTier { return TierFree }
 // just SEARXNG_URL pointing at your self-hosted instance — but returning it here
 // lets `ngtm feeds` print an actionable "set SEARXNG_URL" hint.
 func (searxngFeed) KeyEnv() string  { return "SEARXNG_URL" }
-func (searxngFeed) Available() bool { return os.Getenv("SEARXNG_URL") != "" }
+func (searxngFeed) Available() bool { return ResolveSearXNGURL() != "" }
 
 func (f *searxngFeed) Query(ctx context.Context, q FeedQuery) ([]Evidence, error) {
-	base := strings.TrimRight(os.Getenv("SEARXNG_URL"), "/")
+	base := ResolveSearXNGURL()
 	if base == "" {
-		return nil, fmt.Errorf("SEARXNG_URL not set (self-host SearXNG: https://github.com/searxng/searxng)")
+		return nil, fmt.Errorf("SEARXNG_URL not set (run `ndev ask deep web-up`, or set env / ~/.nicos-dev/searxng/url)")
 	}
 	query := q.Subject
 	if len(q.Keywords) > 0 {

@@ -190,6 +190,29 @@ func categoryClarityVerdict(hasCategory bool) Verdict {
 		Rationale: "Identity work is premature without a verified category/positioning."}
 }
 
+// RunEntityNamePanel scores a legal/company name. Domain availability is not
+// a critic. Collision + evidence integrity are.
+func RunEntityNamePanel(subject string, ev []Evidence, collision string) *PanelResult {
+	anyReal := countReal(ev, func(Evidence) bool { return true }) > 0
+	verdicts := []Verdict{
+		entityCollisionVerdict(subject, collision),
+		integrityVerdict(anyReal),
+	}
+	p := assemblePanel(verdicts)
+	p.Title = "Legal-name screen"
+	return p
+}
+
+func entityCollisionVerdict(subject, collision string) Verdict {
+	if collision != "" {
+		return Verdict{Critic: "Name collision", Score: 3,
+			Kills:     []string{"A software/company entity already uses this name — " + collision + "."},
+			Rationale: "Legal-name collision is the load-bearing check; domains are not."}
+	}
+	return Verdict{Critic: "Name collision", Score: 7,
+		Rationale: "No same-name software/company entity in the structured sources for " + subject + " (not USPTO clearance)."}
+}
+
 // RunEconomicsPanel is the "CFO panel" for the economics vertical. Each critic
 // scores a real unit-economics threshold (LTV:CAC, payback, NRR, gross margin);
 // the integrity critic fires when the model rests on analyst defaults rather

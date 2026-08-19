@@ -33,13 +33,16 @@ func TestBrandScreenWarnings_RegisteredAndCollision(t *testing.T) {
 		{Domain: "keyring.com", Status: domainRegistered, Method: "rdap"},
 		{Domain: "keyring.dev", Status: domainAvailable, Method: "dns-ns"},
 	}
-	w := brandScreenWarnings("keyring", results, "Q107381138 (instance of \"Python package\")")
+	w := brandScreenWarnings("keyring", results, "Q107381138 (instance of \"Python package\")", BrandKindProduct)
 	if len(w) != 2 {
 		t.Fatalf("expected a registered-domain warning + a collision warning, got %d: %v", len(w), w)
 	}
 	joined := strings.Join(w, "\n")
-	if !strings.Contains(joined, "keyring.com is already REGISTERED") {
+	if !strings.Contains(joined, "keyring.com is already registered") {
 		t.Errorf("missing registered-domain warning: %v", w)
+	}
+	if strings.Contains(joined, "pick a name whose") {
+		t.Errorf("domain must not be a naming vote: %v", w)
 	}
 	if !strings.Contains(joined, "name collision") || !strings.Contains(joined, "Q107381138") {
 		t.Errorf("missing collision warning: %v", w)
@@ -51,7 +54,7 @@ func TestBrandScreenWarnings_AllClear(t *testing.T) {
 		{Domain: "garrid.com", Status: domainAvailable, Method: "rdap"},
 		{Domain: "garrid.dev", Status: domainAvailable, Method: "dns-ns"},
 	}
-	if w := brandScreenWarnings("garrid", results, ""); len(w) != 0 {
+	if w := brandScreenWarnings("garrid", results, "", BrandKindProduct); len(w) != 0 {
 		t.Errorf("an all-available, no-collision name should warn nothing, got: %v", w)
 	}
 }

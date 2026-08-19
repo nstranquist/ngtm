@@ -23,7 +23,10 @@ import (
 
 // --- Hacker News (free, Algolia search — no key) -----------------------------
 
-type hackerNewsFeed struct{ now func() time.Time }
+type hackerNewsFeed struct {
+	now    func() time.Time
+	apiURL string
+}
 
 func (hackerNewsFeed) Name() string    { return "hackernews" }
 func (hackerNewsFeed) Tier() FeedTier  { return TierFree }
@@ -31,7 +34,11 @@ func (hackerNewsFeed) KeyEnv() string  { return "" }
 func (hackerNewsFeed) Available() bool { return true }
 
 func (f *hackerNewsFeed) Query(ctx context.Context, q FeedQuery) ([]Evidence, error) {
-	u := "https://hn.algolia.com/api/v1/search?" + url.Values{
+	base := strings.TrimRight(f.apiURL, "/")
+	if base == "" {
+		base = "https://hn.algolia.com/api/v1/search"
+	}
+	u := base + "?" + url.Values{
 		"query":       {q.Subject},
 		"tags":        {"story"},
 		"hitsPerPage": {fmt.Sprint(limitOr(q.Limit, 8))},

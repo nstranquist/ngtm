@@ -12,6 +12,9 @@ type Options struct {
 	Query    string     // free-text research question (optional; defaults to Subject)
 	Keywords []string   // seed keywords/topics (optional)
 	Category string     // disambiguation hint for entity resolution (optional; e.g. "developer tools")
+	// Kind selects brand mode: "product" (default) or "entity" (legal/company
+	// name). Empty is resolved from the subject (LLC/Inc/GmbH/… → entity).
+	Kind string
 	Tiers    []FeedTier // allowed feed tiers; empty => {free}
 	Provider string     // LLM provider for narrative ("" => offline)
 	Model    string     // LLM model ("" => provider default)
